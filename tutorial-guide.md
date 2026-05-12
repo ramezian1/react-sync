@@ -5,17 +5,18 @@
 
 ---
 
-## Step 1: Download the Code
+## Step 1: Clone/Download this Repository (react-sync)
 
 Go to [github.com/ramezian1/react-sync](https://github.com/ramezian1/react-sync), click the green **Code** button → **Download ZIP**, then unzip it somewhere on your computer.
+Or if you have Git installed, use git clone command to clone the repository into your directory. 
 
 ---
 
 ## Step 2: Load it into Chrome
 
-> Make sure you have the **latest version of Chrome** installed before continuing.
+> Make sure you have the **latest version of Chrome** installed before continuing — go to **chrome://settings/help** to check.
 
-1. Open Chrome and go to **chrome://extensions**
+1. Open Chrome and go to **chrome://extensions** (Firefox currently in beta)
 2. Toggle on **Developer Mode** in the top-right corner
 3. Click **Load unpacked**
 4. Select the unzipped `react-sync` folder
@@ -35,6 +36,7 @@ Go to [github.com/ramezian1/react-sync](https://github.com/ramezian1/react-sync)
 
 - **Tab A** — your reaction video (e.g. a YouTube reaction)
 - **Tab B** — the original source video (e.g. the movie/show being reacted to)
+- Highly Recommend using the new **Chrome "Split View"** feature, which lets you split your browser between 2 tabs rather then having to separate the tabs and fit them to one side of your screen.
 
 Make sure both videos are loaded and visible before opening the popup.
 
