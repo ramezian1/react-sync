@@ -116,43 +116,58 @@ async function captureAudioSamples(reqId, durationSeconds) {
       throw new Error('No audio track — content may be DRM-protected');
     }
 
-    // Record raw audio
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? 'audio/webm;codecs=opus' : '';
-    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-    const chunks = [];
+    // Use ScriptProcessorNode to capture raw PCM — more reliable than
+    // MediaRecorder which fails on many sites due to codec constraints.
+    const audioCtx = new AudioContext();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const targetRate = 4000;
+    const nativeRate = audioCtx.sampleRate;
+    const targetSamples = durationSeconds * nativeRate;
+    const collected = [];
 
     await new Promise((resolve, reject) => {
-      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-      recorder.onstop = resolve;
-      recorder.onerror = e => reject(e.error || new Error('MediaRecorder error'));
-      recorder.start();
-      setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, durationSeconds * 1000);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+      // Route through a silent gain so audio isn't doubled through speakers
+      const silent = audioCtx.createGain();
+      silent.gain.value = 0;
+      source.connect(processor);
+      processor.connect(silent);
+      silent.connect(audioCtx.destination);
+
+      let gotAudio = false;
+      processor.onaudioprocess = (e) => {
+        const chunk = e.inputBuffer.getChannelData(0);
+        for (let i = 0; i < chunk.length; i++) collected.push(chunk[i]);
+        if (!gotAudio && chunk.some(s => s !== 0)) gotAudio = true;
+        if (collected.length >= targetSamples) {
+          processor.onaudioprocess = null;
+          processor.disconnect();
+          source.disconnect();
+          audioCtx.close().then(resolve);
+        }
+      };
+
+      // If no audio signal after 3s, the stream is silent/DRM-blocked
+      setTimeout(() => {
+        if (!gotAudio) {
+          processor.disconnect();
+          source.disconnect();
+          audioCtx.close();
+          reject(new Error('No audio signal — video may be muted or DRM-protected'));
+        }
+      }, 3000);
     });
 
-    // Decode at native sample rate
-    const blob = new Blob(chunks);
-    const arrayBuf = await blob.arrayBuffer();
-    const decodeCtx = new AudioContext();
-    const decoded = await decodeCtx.decodeAudioData(arrayBuf);
-    await decodeCtx.close();
-
-    // Resample to 4000 Hz — OfflineAudioContext handles the interpolation
-    const targetRate = 4000;
-    const targetLength = Math.floor(decoded.duration * targetRate);
-    const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
-    const src = offlineCtx.createBufferSource();
-    src.buffer = decoded;
-    src.connect(offlineCtx.destination);
-    src.start();
-    const resampled = await offlineCtx.startRendering();
+    // Downsample via decimation: pick every Nth sample
+    const ratio = nativeRate / targetRate;
+    const decimated = [];
+    for (let i = 0; i < Math.floor(Math.min(collected.length, targetSamples) / ratio); i++) {
+      decimated.push(collected[Math.floor(i * ratio)]);
+    }
 
     // Quantize to Int16 for compact JSON transfer (~160 KB for 10 s)
-    const pcm = resampled.getChannelData(0);
-    const samples = new Array(pcm.length);
-    for (let i = 0; i < pcm.length; i++) {
-      samples[i] = Math.round(Math.max(-1, Math.min(1, pcm[i])) * 32767);
-    }
+    const samples = decimated.map(s => Math.round(Math.max(-1, Math.min(1, s)) * 32767));
 
     window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, samples, sampleRate: targetRate }, '*');
   } catch (err) {
