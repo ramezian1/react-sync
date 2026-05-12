@@ -82,6 +82,19 @@ From this point on:
 
 ---
 
+## Firefox Setup (128+)
+
+> Firefox support is experimental and has only been tested on Windows.
+
+1. Clone or download the repo
+2. Go to **about:debugging#/runtime/this-firefox**
+3. Click **Load Temporary Add-on**
+4. Select the `manifest.json` file inside the `react-sync` folder
+
+> Note: Temporary add-ons are removed when Firefox closes. For permanent installation, the extension would need to be signed by Mozilla.
+
+---
+
 ## Supported Sites
 
 > Tested on **Windows 10/11 + latest Chrome**. Behaviour on other operating systems or browsers may vary.
@@ -113,16 +126,3 @@ From this point on:
 | Netflix / Disney+ | Sync works, but auto-detect is blocked by DRM — set offset manually |
 | Want to stop syncing | Click **CLEAR** |
 | Switched to a new video | Hit CLEAR, reload the tabs, then re-sync |
-
----
-
-## Firefox Setup (128+)
-
-> Firefox support is experimental and has only been tested on Windows.
-
-1. Clone or download the repo
-2. Go to **about:debugging#/runtime/this-firefox**
-3. Click **Load Temporary Add-on**
-4. Select the `manifest.json` file inside the `react-sync` folder
-
-> Note: Temporary add-ons are removed when Firefox closes. For permanent installation, the extension would need to be signed by Mozilla.
