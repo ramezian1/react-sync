@@ -12,6 +12,11 @@ const refreshBtn   = document.getElementById('refreshBtn');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
+const autoDetectBtn    = document.getElementById('autoDetectBtn');
+const autoDetectResult = document.getElementById('autoDetectResult');
+const autoDetectValue  = document.getElementById('autoDetectValue');
+const applyDetectedBtn = document.getElementById('applyDetectedBtn');
+const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
 
 let nudgeSize = 0.5;
 
@@ -131,11 +136,67 @@ function setStatus(msg, type = '') {
 function setSynced(active) {
   statusDot.classList.toggle('synced', active);
   syncBtn.classList.toggle('active', active);
+  autoDetectBtn.disabled = !active;
+  if (!active) hideDetectedResult();
 }
 
 function truncate(str, len) {
   return str?.length > len ? str.substring(0, len) + '…' : str;
 }
+
+function hideDetectedResult() {
+  autoDetectResult.hidden = true;
+  autoDetectValue.textContent = '';
+}
+
+// ─── Auto-detect offset ───────────────────────────────────────────────────────
+let detectedOffset = null;
+
+autoDetectBtn.addEventListener('click', () => {
+  hideDetectedResult();
+  autoDetectBtn.disabled = true;
+  autoDetectBtn.textContent = '⏳ capturing 10s…';
+  setStatus('Capturing audio from both tabs…', 'warn');
+
+  chrome.runtime.sendMessage({ type: 'DETECT_OFFSET' }, (res) => {
+    autoDetectBtn.disabled = false;
+    autoDetectBtn.textContent = '◎ auto-detect offset';
+
+    if (res?.error) {
+      setStatus(`⚠ ${res.error}`, 'error');
+      return;
+    }
+
+    detectedOffset = res.offset;
+    const sign = detectedOffset >= 0 ? '+' : '';
+    autoDetectValue.textContent = `${sign}${detectedOffset}s`;
+    autoDetectResult.hidden = false;
+    setStatus(`Detected offset: ${sign}${detectedOffset}s — apply?`, 'warn');
+  });
+});
+
+applyDetectedBtn.addEventListener('click', () => {
+  if (detectedOffset === null) return;
+  offsetInput.value = detectedOffset;
+  hideDetectedResult();
+
+  // Re-sync with the new offset
+  const tabA = parseInt(tabASelect.value);
+  const tabB = parseInt(tabBSelect.value);
+  chrome.runtime.sendMessage({ type: 'SET_SYNC', tabA, tabB, offset: detectedOffset }, (res) => {
+    if (res?.ok) {
+      setSynced(true);
+      setStatus(`✓ Synced — offset: ${detectedOffset}s (auto-detected)`, 'ok');
+    }
+  });
+  detectedOffset = null;
+});
+
+dismissDetectedBtn.addEventListener('click', () => {
+  hideDetectedResult();
+  detectedOffset = null;
+  setStatus('Dismissed — offset unchanged');
+});
 
 // ─── Kick off ─────────────────────────────────────────────────────────────────
 init();

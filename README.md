@@ -13,7 +13,7 @@ Built for the classic pain point: watching a Patreon reaction video alongside th
 - ✅ Play, pause, and seek events mirror across both tabs
 - ✅ Nudge offset in 0.5s / 1s / 5s increments for fine-tuning
 - ✅ Sync state persists while tabs are open
-- ✅ Works with YouTube, Patreon, Vimeo, and any HTML5 video
+- ✅ Works with YouTube, Patreon, Vimeo, Netflix, Disney+, and any HTML5 video
 - ✅ Zero data collected, fully local
 
 ---
@@ -36,11 +36,17 @@ Built for the classic pain point: watching a Patreon reaction video alongside th
 
 ## Install (Development)
 
+### Chrome
 1. Clone this repo
 2. Go to `chrome://extensions`
 3. Enable **Developer Mode** (top right toggle)
 4. Click **Load unpacked** → select the `reactsync` folder
 5. Pin the extension from the toolbar puzzle icon
+
+### Firefox (128+)
+1. Clone this repo
+2. Go to `about:debugging#/runtime/this-firefox`
+3. Click **Load Temporary Add-on** → select `manifest.json`
 
 ---
 
@@ -52,9 +58,9 @@ reactsync/
 ├── popup.html          # Popup UI
 ├── popup.css           # Popup styles
 ├── popup.js            # Popup logic
-├── src/
-│   ├── background.js   # Service worker — manages sync state & message routing
-│   └── content.js      # Injected into each tab — hooks video events
+├── background.js       # Service worker — manages sync state & message routing
+├── page-inject.js      # Injected into MAIN world — hooks video events & executes playback
+├── content.js          # Injected into isolated world — bridges page-inject.js ↔ background
 └── icons/              # Extension icons
 ```
 
@@ -62,9 +68,9 @@ reactsync/
 
 ## Known Limitations / Roadmap
 
-- [ ] Some sites (Netflix, Disney+) block programmatic video control — workaround TBD
-- [ ] Auto-detect offset by audio fingerprinting (future feature)
-- [ ] Firefox support
+- [x] Netflix & Disney+ support — MAIN world injection bypasses playback guards
+- [x] Auto-detect offset by audio fingerprinting (±10s range, works on non-DRM content)
+- [x] Firefox support (Firefox 128+)
 - [ ] Keyboard shortcut for nudging offset while watching
 
 ---

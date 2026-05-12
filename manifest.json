@@ -1,10 +1,16 @@
 {
   "manifest_version": 3,
   "name": "ReactSync",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Sync reaction videos with source videos across browser tabs. Set it once, forget it forever.",
   "permissions": ["tabs", "scripting", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "reactsync@ramezian.dev",
+      "strict_min_version": "128.0"
+    }
+  },
   "background": {
     "service_worker": "background.js"
   },
@@ -17,6 +23,12 @@
     }
   },
   "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["page-inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],

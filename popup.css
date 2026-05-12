@@ -312,6 +312,91 @@ body {
 .status-bar.error { color: var(--red);    border-color: var(--red); }
 .status-bar.warn  { color: var(--yellow); border-color: var(--yellow); }
 
+/* ── Auto-detect row ─────────────────────────────────────────── */
+.autodetect-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-autodetect {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.btn-autodetect:not(:disabled):hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.btn-autodetect:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.autodetect-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+}
+
+.autodetect-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.autodetect-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  flex: 1;
+}
+
+.btn-apply {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-apply:hover { background: #00ffb3; }
+
+.btn-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.btn-dismiss:hover { color: var(--red); }
+
 /* ── Refresh Button ──────────────────────────────────────────── */
 .refresh-btn {
   background: transparent;

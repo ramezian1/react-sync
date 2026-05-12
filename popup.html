@@ -62,6 +62,16 @@
         <button class="nudge-size-btn" data-size="1">1s</button>
         <button class="nudge-size-btn" data-size="5">5s</button>
       </div>
+
+      <div class="autodetect-row">
+        <button class="btn-autodetect" id="autoDetectBtn" disabled>◎ auto-detect offset</button>
+        <div class="autodetect-result" id="autoDetectResult" hidden>
+          <span class="autodetect-label">detected:</span>
+          <span class="autodetect-value" id="autoDetectValue"></span>
+          <button class="btn-apply" id="applyDetectedBtn">apply</button>
+          <button class="btn-dismiss" id="dismissDetectedBtn">✕</button>
+        </div>
+      </div>
     </div>
 
     <!-- Action Buttons -->
