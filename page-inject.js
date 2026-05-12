@@ -72,6 +72,11 @@ window.addEventListener('message', (e) => {
     return;
   }
 
+  if (type === 'CAPTURE_AUDIO') {
+    captureAudioSamples(reqId, e.data.duration || 10);
+    return;
+  }
+
   if (!videoEl || !document.contains(videoEl)) videoEl = findVideo();
   if (!videoEl) return;
 
@@ -86,6 +91,76 @@ window.addEventListener('message', (e) => {
     videoEl.currentTime = Math.max(0, e.data.time);
   }
 });
+
+// ── Audio capture for offset detection ───────────────────────────────────────
+// Records durationSeconds of audio from the video, resamples to 4 kHz, and
+// posts back Int16 samples. Runs in MAIN world so captureStream() works on
+// sites that would block it from an isolated content script.
+let isCapturing = false;
+
+async function captureAudioSamples(reqId, durationSeconds) {
+  if (isCapturing) {
+    window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, error: 'Already capturing' }, '*');
+    return;
+  }
+  if (!videoEl || !document.contains(videoEl)) videoEl = findVideo();
+  if (!videoEl) {
+    window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, error: 'No video found' }, '*');
+    return;
+  }
+
+  isCapturing = true;
+  try {
+    const stream = videoEl.captureStream();
+    if (stream.getAudioTracks().length === 0) {
+      throw new Error('No audio track — content may be DRM-protected');
+    }
+
+    // Record raw audio
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus' : '';
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    const chunks = [];
+
+    await new Promise((resolve, reject) => {
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = resolve;
+      recorder.onerror = e => reject(e.error || new Error('MediaRecorder error'));
+      recorder.start();
+      setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, durationSeconds * 1000);
+    });
+
+    // Decode at native sample rate
+    const blob = new Blob(chunks);
+    const arrayBuf = await blob.arrayBuffer();
+    const decodeCtx = new AudioContext();
+    const decoded = await decodeCtx.decodeAudioData(arrayBuf);
+    await decodeCtx.close();
+
+    // Resample to 4000 Hz — OfflineAudioContext handles the interpolation
+    const targetRate = 4000;
+    const targetLength = Math.floor(decoded.duration * targetRate);
+    const offlineCtx = new OfflineAudioContext(1, targetLength, targetRate);
+    const src = offlineCtx.createBufferSource();
+    src.buffer = decoded;
+    src.connect(offlineCtx.destination);
+    src.start();
+    const resampled = await offlineCtx.startRendering();
+
+    // Quantize to Int16 for compact JSON transfer (~160 KB for 10 s)
+    const pcm = resampled.getChannelData(0);
+    const samples = new Array(pcm.length);
+    for (let i = 0; i < pcm.length; i++) {
+      samples[i] = Math.round(Math.max(-1, Math.min(1, pcm[i])) * 32767);
+    }
+
+    window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, samples, sampleRate: targetRate }, '*');
+  } catch (err) {
+    window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, error: err.message }, '*');
+  } finally {
+    isCapturing = false;
+  }
+}
 
 // Stay alive permanently — Netflix/Disney+ replace <video> elements on
 // loading screens, ads, and episode transitions

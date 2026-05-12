@@ -65,6 +65,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ...syncState });
       return true;
 
+    // Popup requests auto-detection of offset via audio cross-correlation
+    case 'DETECT_OFFSET': {
+      if (!syncState.isSynced) {
+        sendResponse({ error: 'Not synced — set Tab A and Tab B first' });
+        break;
+      }
+      const duration = 10; // seconds of audio to capture per tab
+
+      Promise.all([
+        tabMessage(syncState.tabA, { type: 'CAPTURE_AUDIO', duration }),
+        tabMessage(syncState.tabB, { type: 'CAPTURE_AUDIO', duration })
+      ]).then(([resultA, resultB]) => {
+        if (resultA?.error) return sendResponse({ error: `Tab A: ${resultA.error}` });
+        if (resultB?.error) return sendResponse({ error: `Tab B: ${resultB.error}` });
+        const offset = findOffsetSeconds(resultA.samples, resultB.samples, resultA.sampleRate);
+        sendResponse({ offset });
+      }).catch(err => sendResponse({ error: err.message }));
+
+      return true; // keep channel open for async sendResponse
+    }
+
     // ── Video events from content scripts ──────────────────────────────────
 
     case 'VIDEO_PLAY':
@@ -131,6 +152,124 @@ function safeSend(tabId, message) {
   chrome.tabs.sendMessage(tabId, message).catch(() => {
     // Tab may have been closed or navigated away — silently ignore
   });
+}
+
+// Callback-based wrapper so Promise.all works with the sendResponse pattern
+// used by content.js (which calls sendResponse asynchronously).
+function tabMessage(tabId, message) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, message, (response) => {
+      resolve(response || { error: chrome.runtime.lastError?.message || 'No response' });
+    });
+  });
+}
+
+// ─── FFT-based Cross-Correlation ──────────────────────────────────────────────
+// Pure math — no Web Audio API needed in a service worker.
+// Detects the time offset between two audio sample arrays.
+// Returns offset in seconds: positive = Tab A is ahead of Tab B.
+
+function nextPow2(n) {
+  let p = 1;
+  while (p < n) p <<= 1;
+  return p;
+}
+
+// Iterative Cooley-Tukey FFT, in-place on Float64Arrays re/im.
+// Length must be a power of 2.
+function fftInPlace(re, im, inverse) {
+  const n = re.length;
+
+  // Bit-reversal permutation
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      let t = re[i]; re[i] = re[j]; re[j] = t;
+      t = im[i]; im[i] = im[j]; im[j] = t;
+    }
+  }
+
+  // Butterfly stages
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = (inverse ? 2 : -2) * Math.PI / len;
+    const cos = Math.cos(ang), sin = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let wRe = 1, wIm = 0;
+      const half = len >> 1;
+      for (let k = 0; k < half; k++) {
+        const uRe = re[i + k], uIm = im[i + k];
+        const vRe = re[i + k + half] * wRe - im[i + k + half] * wIm;
+        const vIm = re[i + k + half] * wIm + im[i + k + half] * wRe;
+        re[i + k]        = uRe + vRe;  im[i + k]        = uIm + vIm;
+        re[i + k + half] = uRe - vRe;  im[i + k + half] = uIm - vIm;
+        const newWRe = wRe * cos - wIm * sin;
+        wIm = wRe * sin + wIm * cos;
+        wRe = newWRe;
+      }
+    }
+  }
+
+  if (inverse) {
+    for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
+  }
+}
+
+function normalizeSignal(samples) {
+  const n = samples.length;
+  let sum = 0;
+  for (const s of samples) sum += s;
+  const mean = sum / n;
+
+  let sumSq = 0;
+  for (const s of samples) sumSq += (s - mean) ** 2;
+  const rms = Math.sqrt(sumSq / n);
+
+  const out = new Float64Array(n);
+  if (rms < 1e-10) return out; // silence — return zeros
+  for (let i = 0; i < n; i++) out[i] = (samples[i] - mean) / rms;
+  return out;
+}
+
+// Returns detected offset in seconds (positive = A ahead of B).
+// Usable range: ±(min(lenA, lenB) / sampleRate) seconds.
+function findOffsetSeconds(samplesA, samplesB, sampleRate) {
+  const a = normalizeSignal(samplesA);
+  const b = normalizeSignal(samplesB);
+
+  // Zero-pad to the next power of 2 ≥ lenA + lenB so circular correlation
+  // doesn't wrap — this gives us the full linear cross-correlation.
+  const n = nextPow2(a.length + b.length);
+
+  const reA = new Float64Array(n), imA = new Float64Array(n);
+  const reB = new Float64Array(n), imB = new Float64Array(n);
+  for (let i = 0; i < a.length; i++) reA[i] = a[i];
+  for (let i = 0; i < b.length; i++) reB[i] = b[i];
+
+  fftInPlace(reA, imA, false);
+  fftInPlace(reB, imB, false);
+
+  // C = conj(FFT(A)) * FFT(B)
+  // Peak of IFFT(C) at index τ means A leads B by τ / sampleRate seconds.
+  const reC = new Float64Array(n), imC = new Float64Array(n);
+  for (let k = 0; k < n; k++) {
+    reC[k] = reA[k] * reB[k] + imA[k] * imB[k];
+    imC[k] = reA[k] * imB[k] - imA[k] * reB[k];
+  }
+
+  fftInPlace(reC, imC, true); // IFFT
+
+  // Search only within the valid lag range ±(min(lenA,lenB)-1)
+  const maxLag = Math.min(a.length, b.length) - 1;
+  let best = -Infinity, bestLag = 0;
+  for (let lag = -maxLag; lag <= maxLag; lag++) {
+    const idx = lag >= 0 ? lag : n + lag;
+    const v = Math.abs(reC[idx]);
+    if (v > best) { best = v; bestLag = lag; }
+  }
+
+  return parseFloat((bestLag / sampleRate).toFixed(2));
 }
 
 // ─── Cleanup closed tabs ──────────────────────────────────────────────────────

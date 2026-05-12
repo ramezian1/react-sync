@@ -67,6 +67,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     window.postMessage({ __rsCmd: true, type, reqId }, '*');
     return true; // keep channel open for async sendResponse
   }
+
+  if (type === 'CAPTURE_AUDIO') {
+    const reqId = Math.random().toString(36).slice(2);
+    const duration = message.duration || 10;
+
+    let timer;
+    const handler = (e) => {
+      if (!e.data?.__rs || e.data.type !== 'AUDIO_CAPTURED' || e.data.reqId !== reqId) return;
+      clearTimeout(timer);
+      window.removeEventListener('message', handler);
+      sendResponse(e.data.error
+        ? { error: e.data.error }
+        : { samples: e.data.samples, sampleRate: e.data.sampleRate }
+      );
+    };
+    window.addEventListener('message', handler);
+
+    // Extra 5s headroom beyond the capture duration for decode/resample
+    timer = setTimeout(() => {
+      window.removeEventListener('message', handler);
+      sendResponse({ error: 'Capture timed out' });
+    }, (duration + 5) * 1000);
+
+    window.postMessage({ __rsCmd: true, type: 'CAPTURE_AUDIO', reqId, duration }, '*');
+    return true;
+  }
 });
 
 // ── SPA navigation ─────────────────────────────────────────────────────────────

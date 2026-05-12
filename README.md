@@ -69,7 +69,7 @@ reactsync/
 ## Known Limitations / Roadmap
 
 - [x] Netflix & Disney+ support — MAIN world injection bypasses playback guards
-- [ ] Auto-detect offset by audio fingerprinting (future feature)
+- [x] Auto-detect offset by audio fingerprinting (±10s range, works on non-DRM content)
 - [x] Firefox support (Firefox 128+)
 - [ ] Keyboard shortcut for nudging offset while watching
 
