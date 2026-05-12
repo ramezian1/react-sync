@@ -1,5 +1,8 @@
 # ReactSync — Setup & Usage Guide
 
+> **Tested on:** Windows 10/11 with the latest version of Google Chrome.
+> If you're on an older Chrome version, update it first — go to **chrome://settings/help** to check.
+
 ---
 
 ## Step 1: Download the Code
@@ -9,6 +12,8 @@ Go to [github.com/ramezian1/react-sync](https://github.com/ramezian1/react-sync)
 ---
 
 ## Step 2: Load it into Chrome
+
+> Make sure you have the **latest version of Chrome** installed before continuing.
 
 1. Open Chrome and go to **chrome://extensions**
 2. Toggle on **Developer Mode** in the top-right corner
@@ -75,30 +80,9 @@ From this point on:
 
 ---
 
-## Tips
-
-| Situation | What to do |
-|-----------|------------|
-| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) to fine-tune while watching |
-| Tab not showing in dropdown | The video must be loaded first — hit ↻ refresh tabs |
-| Netflix / Disney+ | Sync works, but auto-detect is blocked by DRM — set offset manually |
-| Want to stop syncing | Click **CLEAR** |
-| Switched to a new video | Hit CLEAR, reload the tabs, then re-sync |
-
----
-
-## Firefox Setup (128+)
-
-1. Clone or download the repo
-2. Go to **about:debugging#/runtime/this-firefox**
-3. Click **Load Temporary Add-on**
-4. Select the `manifest.json` file inside the `react-sync` folder
-
-> Note: Temporary add-ons are removed when Firefox closes. For permanent installation, the extension would need to be signed by Mozilla.
-
----
-
 ## Supported Sites
+
+> Tested on **Windows 10/11 + latest Chrome**. Behaviour on other operating systems or browsers may vary.
 
 | Site | Sync | Auto-detect offset |
 |------|:----:|:-----------------:|
@@ -115,3 +99,28 @@ From this point on:
 | ![Apple TV+](https://img.shields.io/badge/Apple_TV+-000000?style=flat&logo=appletv&logoColor=white) | ✅ | ❌ DRM |
 | ![Paramount+](https://img.shields.io/badge/Paramount+-0064FF?style=flat&logo=paramountplus&logoColor=white) | ✅ | ❌ DRM |
 | ![Peacock](https://img.shields.io/badge/Peacock-000000?style=flat&logo=peacocktv&logoColor=white) | ✅ | ❌ DRM |
+
+---
+
+## Tips
+
+| Situation | What to do |
+|-----------|------------|
+| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) to fine-tune while watching |
+| Tab not showing in dropdown | The video must be loaded first — hit ↻ refresh tabs |
+| Netflix / Disney+ | Sync works, but auto-detect is blocked by DRM — set offset manually |
+| Want to stop syncing | Click **CLEAR** |
+| Switched to a new video | Hit CLEAR, reload the tabs, then re-sync |
+
+---
+
+## Firefox Setup (128+)
+
+> Firefox support is experimental and has only been tested on Windows.
+
+1. Clone or download the repo
+2. Go to **about:debugging#/runtime/this-firefox**
+3. Click **Load Temporary Add-on**
+4. Select the `manifest.json` file inside the `react-sync` folder
+
+> Note: Temporary add-ons are removed when Firefox closes. For permanent installation, the extension would need to be signed by Mozilla.
