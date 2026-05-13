@@ -412,3 +412,31 @@ body {
 }
 
 .refresh-btn:hover { color: var(--text); }
+
+/* ── Tab favicon ─────────────────────────────────────────────── */
+.tab-fav {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* ── Light theme (follows OS preference) ────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:        #f2f2f7;
+    --surface:   #ffffff;
+    --border:    #d1d1d6;
+    --text:      #1c1c1e;
+    --muted:     #6c6c70;
+  }
+
+  .tab-select {
+    color-scheme: light;
+  }
+
+  .btn-sync.active {
+    box-shadow: 0 0 12px rgba(0,168,114,0.4);
+  }
+}
