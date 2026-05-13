@@ -3,6 +3,8 @@
 // ─── Elements ─────────────────────────────────────────────────────────────────
 const tabASelect   = document.getElementById('tabASelect');
 const tabBSelect   = document.getElementById('tabBSelect');
+const tabAFav      = document.getElementById('tabAFav');
+const tabBFav      = document.getElementById('tabBFav');
 const offsetInput  = document.getElementById('offsetInput');
 const syncBtn      = document.getElementById('syncBtn');
 const clearBtn     = document.getElementById('clearBtn');
@@ -19,25 +21,27 @@ const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
 
 let nudgeSize = 0.5;
+let tabsCache = []; // kept so favicon lookups work after loadTabs()
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
   await loadTabs();
   await restoreSyncState();
+  await restoreOffset();
 }
 
 // ─── Load tabs into dropdowns ─────────────────────────────────────────────────
 async function loadTabs() {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage({ type: 'GET_VIDEO_TABS' }, (response) => {
-      const tabs = response?.tabs || [];
-      populateSelect(tabASelect, tabs);
-      populateSelect(tabBSelect, tabs);
+      tabsCache = response?.tabs || [];
+      populateSelect(tabASelect, tabsCache);
+      populateSelect(tabBSelect, tabsCache);
 
-      if (tabs.length === 0) {
+      if (tabsCache.length === 0) {
         setStatus('No video tabs detected. Open a video and refresh.', 'warn');
       } else {
-        setStatus(`${tabs.length} video tab${tabs.length > 1 ? 's' : ''} found`);
+        setStatus(`${tabsCache.length} video tab${tabsCache.length > 1 ? 's' : ''} found`);
       }
       resolve();
     });
@@ -56,6 +60,20 @@ function populateSelect(select, tabs) {
   if (current) select.value = current;
 }
 
+// ─── Favicon helpers ──────────────────────────────────────────────────────────
+function updateFavicon(favImg, tabId) {
+  const tab = tabsCache.find(t => String(t.id) === String(tabId));
+  if (tab?.favIconUrl) {
+    favImg.src = tab.favIconUrl;
+    favImg.hidden = false;
+  } else {
+    favImg.hidden = true;
+  }
+}
+
+tabASelect.addEventListener('change', () => updateFavicon(tabAFav, tabASelect.value));
+tabBSelect.addEventListener('change', () => updateFavicon(tabBFav, tabBSelect.value));
+
 // ─── Restore saved sync state ─────────────────────────────────────────────────
 async function restoreSyncState() {
   return new Promise((resolve) => {
@@ -64,11 +82,29 @@ async function restoreSyncState() {
         tabASelect.value  = state.tabA;
         tabBSelect.value  = state.tabB;
         offsetInput.value = state.offset;
+        updateFavicon(tabAFav, state.tabA);
+        updateFavicon(tabBFav, state.tabB);
         setSynced(true);
         setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
       }
       resolve();
     });
+  });
+}
+
+// ─── Persist last used offset ─────────────────────────────────────────────────
+// Saves offset to chrome.storage.local so it survives popup close/reopen.
+function saveOffset(offset) {
+  chrome.storage.local.set({ lastOffset: offset });
+}
+
+async function restoreOffset() {
+  // Only restore if not already filled in by restoreSyncState
+  if (offsetInput.value && parseFloat(offsetInput.value) !== 0) return;
+  chrome.storage.local.get('lastOffset', (data) => {
+    if (data.lastOffset !== undefined) {
+      offsetInput.value = data.lastOffset;
+    }
   });
 }
 
@@ -92,6 +128,7 @@ syncBtn.addEventListener('click', () => {
     { type: 'SET_SYNC', tabA, tabB, offset },
     (res) => {
       if (res?.ok) {
+        saveOffset(offset);
         setSynced(true);
         setStatus(`✓ Synced — offset: ${offset}s`, 'ok');
       }
@@ -180,11 +217,11 @@ applyDetectedBtn.addEventListener('click', () => {
   offsetInput.value = detectedOffset;
   hideDetectedResult();
 
-  // Re-sync with the new offset
   const tabA = parseInt(tabASelect.value);
   const tabB = parseInt(tabBSelect.value);
   chrome.runtime.sendMessage({ type: 'SET_SYNC', tabA, tabB, offset: detectedOffset }, (res) => {
     if (res?.ok) {
+      saveOffset(detectedOffset);
       setSynced(true);
       setStatus(`✓ Synced — offset: ${detectedOffset}s (auto-detected)`, 'ok');
     }
