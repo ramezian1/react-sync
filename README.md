@@ -5,7 +5,7 @@
 
 > Sync reaction videos with source videos across browser tabs. Set the offset once — it handles the rest.
 
-Built for the classic pain point: watching a Patreon reaction video alongside the original movie/show and having to manually pause/play both every time.
+Built for the classic pain point: watching a reaction video alongside the original on YouTube, Patreon, Netflix, or anywhere else — and having to manually pause/play both every time.
 
 ---
 
