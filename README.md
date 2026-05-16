@@ -1,6 +1,7 @@
 # ReactSync 🔄
 
 [![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)
+[![License: MIT](https://img.shields.io/badge/license-MIT-00e5a0)](LICENSE)
 
 > Sync reaction videos with source videos across browser tabs. Set the offset once — it handles the rest.
 
