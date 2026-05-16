@@ -19,9 +19,20 @@ const autoDetectResult = document.getElementById('autoDetectResult');
 const autoDetectValue  = document.getElementById('autoDetectValue');
 const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
+const themeToggle      = document.getElementById('themeToggle');
 
 let nudgeSize = 0.5;
 let tabsCache = []; // kept so favicon lookups work after loadTabs()
+
+// ─── Theme toggle ─────────────────────────────────────────────────────────────
+chrome.storage.local.get(['theme'], ({ theme }) => {
+  if (theme === 'light') document.body.classList.add('light');
+});
+
+themeToggle.addEventListener('click', () => {
+  const isLight = document.body.classList.toggle('light');
+  chrome.storage.local.set({ theme: isLight ? 'light' : 'dark' });
+});
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -85,7 +96,14 @@ async function restoreSyncState() {
         updateFavicon(tabAFav, state.tabA);
         updateFavicon(tabBFav, state.tabB);
         setSynced(true);
-        setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
+
+        if (state.reloadingA || state.reloadingB) {
+          const which = (state.reloadingA && state.reloadingB) ? 'Both tabs'
+                      : state.reloadingA ? 'Tab A' : 'Tab B';
+          setStatus(`⏳ ${which} reloading — sync resumes automatically`, 'warn');
+        } else {
+          setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
+        }
       }
       resolve();
     });

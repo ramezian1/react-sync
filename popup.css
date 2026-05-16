@@ -397,6 +397,36 @@ body {
 
 .btn-dismiss:hover { color: var(--red); }
 
+/* ── Theme Toggle ────────────────────────────────────────────── */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: auto;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.theme-toggle:hover { color: var(--text); }
+
+/* ── Light Mode ──────────────────────────────────────────────── */
+body.light {
+  --bg:        #f5f5f7;
+  --surface:   #ffffff;
+  --border:    #d1d1d6;
+  --text:      #1c1c1e;
+  --muted:     #6e6e73;
+  --tag-a:     #6b4fa0;
+  --tag-b:     #1f6cbf;
+}
+
+body.light .btn-sync { color: #000; }
+body.light .status-dot { background: var(--border); }
+body.light .status-dot.synced { background: var(--accent); }
+
 /* ── Refresh Button ──────────────────────────────────────────── */
 .refresh-btn {
   background: transparent;

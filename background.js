@@ -12,6 +12,18 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
+// Synced tabs that are currently reloading
+let reloadingTabs = new Set();
+
+// Restore persisted sync state when service worker starts up
+chrome.storage.session.get(['syncState']).then(({ syncState: saved }) => {
+  if (saved?.isSynced) syncState = saved;
+});
+
+function saveState() {
+  chrome.storage.session.set({ syncState });
+}
+
 // ─── Message Router ───────────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const senderTabId = sender.tab?.id;
@@ -26,15 +38,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           title: message.title,
           url: message.url
         };
+        // Tab finished reloading and found a video — sync resumes automatically
+        reloadingTabs.delete(senderTabId);
       }
       break;
 
     // Popup requests list of tabs with videos
     case 'GET_VIDEO_TABS':
-      // Also fetch current open tabs and merge
       chrome.tabs.query({}, (tabs) => {
+        // Always include synced tabs even if videoTabs was cleared by a SW restart
+        const syncedIds = new Set([syncState.tabA, syncState.tabB].filter(Boolean));
         const enriched = tabs
-          .filter(t => videoTabs[t.id])
+          .filter(t => videoTabs[t.id] || syncedIds.has(t.id))
           .map(t => ({
             id: t.id,
             title: t.title,
@@ -51,6 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.tabB = message.tabB;
       syncState.offset = parseFloat(message.offset) || 0;
       syncState.isSynced = true;
+      saveState();
       chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
       sendResponse({ ok: true });
       break;
@@ -58,13 +74,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Popup clears sync
     case 'CLEAR_SYNC':
       syncState = { tabA: null, tabB: null, offset: 0, isSynced: false };
+      saveState();
       chrome.alarms.clear('driftCheck');
       sendResponse({ ok: true });
       break;
 
     // Popup requests current sync state
     case 'GET_SYNC_STATE':
-      sendResponse({ ...syncState });
+      sendResponse({
+        ...syncState,
+        reloadingA: reloadingTabs.has(syncState.tabA),
+        reloadingB: reloadingTabs.has(syncState.tabB)
+      });
       return true;
 
     // Popup requests auto-detection of offset via audio cross-correlation
@@ -151,9 +172,8 @@ function calculateTargetTime(fromTabId, currentTime) {
 }
 
 function safeSend(tabId, message) {
-  chrome.tabs.sendMessage(tabId, message).catch(() => {
-    // Tab may have been closed or navigated away — silently ignore
-  });
+  if (reloadingTabs.has(tabId)) return; // skip — tab is mid-reload
+  chrome.tabs.sendMessage(tabId, message).catch(() => {});
 }
 
 // Callback-based wrapper so Promise.all works with the sendResponse pattern
@@ -310,8 +330,18 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // ─── Cleanup closed tabs ──────────────────────────────────────────────────────
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete videoTabs[tabId];
+  reloadingTabs.delete(tabId);
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
+    saveState();
     chrome.alarms.clear('driftCheck');
+  }
+});
+
+// ─── Track synced tab reloads ─────────────────────────────────────────────────
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status !== 'loading') return;
+  if (tabId === syncState.tabA || tabId === syncState.tabB) {
+    reloadingTabs.add(tabId);
   }
 });
