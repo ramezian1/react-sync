@@ -12,6 +12,9 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
+// Synced tabs that are currently reloading
+let reloadingTabs = new Set();
+
 // Restore persisted sync state when service worker starts up
 chrome.storage.session.get(['syncState']).then(({ syncState: saved }) => {
   if (saved?.isSynced) syncState = saved;
@@ -35,6 +38,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           title: message.title,
           url: message.url
         };
+        // Tab finished reloading and found a video — sync resumes automatically
+        reloadingTabs.delete(senderTabId);
       }
       break;
 
@@ -74,7 +79,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Popup requests current sync state
     case 'GET_SYNC_STATE':
-      sendResponse({ ...syncState });
+      sendResponse({
+        ...syncState,
+        reloadingA: reloadingTabs.has(syncState.tabA),
+        reloadingB: reloadingTabs.has(syncState.tabB)
+      });
       return true;
 
     // Popup requests auto-detection of offset via audio cross-correlation
@@ -161,9 +170,8 @@ function calculateTargetTime(fromTabId, currentTime) {
 }
 
 function safeSend(tabId, message) {
-  chrome.tabs.sendMessage(tabId, message).catch(() => {
-    // Tab may have been closed or navigated away — silently ignore
-  });
+  if (reloadingTabs.has(tabId)) return; // skip — tab is mid-reload
+  chrome.tabs.sendMessage(tabId, message).catch(() => {});
 }
 
 // Callback-based wrapper so Promise.all works with the sendResponse pattern
@@ -287,8 +295,17 @@ function findOffsetSeconds(samplesA, samplesB, sampleRate) {
 // ─── Cleanup closed tabs ──────────────────────────────────────────────────────
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete videoTabs[tabId];
+  reloadingTabs.delete(tabId);
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
     saveState();
+  }
+});
+
+// ─── Track synced tab reloads ─────────────────────────────────────────────────
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status !== 'loading') return;
+  if (tabId === syncState.tabA || tabId === syncState.tabB) {
+    reloadingTabs.add(tabId);
   }
 });
