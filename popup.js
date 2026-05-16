@@ -12,6 +12,9 @@ const statusBar    = document.getElementById('statusBar');
 const statusDot    = document.getElementById('statusDot');
 const refreshBtn   = document.getElementById('refreshBtn');
 const shortcutsBtn = document.getElementById('shortcutsBtn');
+const donateBtn      = document.getElementById('donateBtn');
+const donateDismiss  = document.getElementById('donateDismiss');
+const donateSep      = document.getElementById('donateSep');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
@@ -186,6 +189,27 @@ refreshBtn.addEventListener('click', loadTabs);
 // ─── Shortcuts button ─────────────────────────────────────────────────────────
 shortcutsBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('shortcuts.html') });
+});
+
+donateBtn.addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
+});
+
+const DONATE_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+donateDismiss.addEventListener('click', () => {
+  hideDonate();
+  chrome.storage.local.set({ donateSnoozedAt: Date.now() });
+});
+
+function hideDonate() {
+  donateBtn.hidden = true;
+  donateDismiss.hidden = true;
+  donateSep.hidden = true;
+}
+
+chrome.storage.local.get('donateSnoozedAt', ({ donateSnoozedAt }) => {
+  if (donateSnoozedAt && Date.now() - donateSnoozedAt < DONATE_SNOOZE_MS) hideDonate();
 });
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────

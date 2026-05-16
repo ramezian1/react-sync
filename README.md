@@ -1,5 +1,7 @@
 # ReactSync 🔄
 
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)
+
 > Sync reaction videos with source videos across browser tabs. Set the offset once — it handles the rest.
 
 Built for the classic pain point: watching a Patreon reaction video alongside the original movie/show and having to manually pause/play both every time.
