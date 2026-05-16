@@ -12,6 +12,15 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
+// Restore persisted sync state when service worker starts up
+chrome.storage.session.get(['syncState']).then(({ syncState: saved }) => {
+  if (saved?.isSynced) syncState = saved;
+});
+
+function saveState() {
+  chrome.storage.session.set({ syncState });
+}
+
 // ─── Message Router ───────────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const senderTabId = sender.tab?.id;
@@ -31,10 +40,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Popup requests list of tabs with videos
     case 'GET_VIDEO_TABS':
-      // Also fetch current open tabs and merge
       chrome.tabs.query({}, (tabs) => {
+        // Always include synced tabs even if videoTabs was cleared by a SW restart
+        const syncedIds = new Set([syncState.tabA, syncState.tabB].filter(Boolean));
         const enriched = tabs
-          .filter(t => videoTabs[t.id])
+          .filter(t => videoTabs[t.id] || syncedIds.has(t.id))
           .map(t => ({
             id: t.id,
             title: t.title,
@@ -51,12 +61,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.tabB = message.tabB;
       syncState.offset = parseFloat(message.offset) || 0;
       syncState.isSynced = true;
+      saveState();
       sendResponse({ ok: true });
       break;
 
     // Popup clears sync
     case 'CLEAR_SYNC':
       syncState = { tabA: null, tabB: null, offset: 0, isSynced: false };
+      saveState();
       sendResponse({ ok: true });
       break;
 
@@ -277,5 +289,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   delete videoTabs[tabId];
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
+    saveState();
   }
 });
