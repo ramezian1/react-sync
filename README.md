@@ -93,7 +93,10 @@ reactsync/
 - [x] Netflix & Disney+ support — MAIN world injection bypasses playback guards
 - [x] Auto-detect offset by audio fingerprinting (±10s range, works on non-DRM content)
 - [x] Firefox support (Firefox 128+)
-- [ ] Keyboard shortcut for nudging offset while watching
+- [x] Keyboard shortcut for nudging offset while watching (Alt+Shift+Up / Down)
+- [x] Tab favicons in dropdowns
+- [x] Persist last used offset across popup sessions
+- [x] Auto drift correction (checks every 60s)
 
 ---
 
@@ -103,6 +106,12 @@ reactsync/
 - Chrome Extensions Manifest V3
 - YouTube HTML5 video API + generic `<video>` element events
 - `chrome.tabs` messaging for cross-tab sync
+
+---
+
+## Documentation
+
+- [tutorial-guide.md](tutorial-guide.md) — step-by-step setup, usage, and supported sites
 
 ---
 

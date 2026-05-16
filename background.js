@@ -67,6 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.offset = parseFloat(message.offset) || 0;
       syncState.isSynced = true;
       saveState();
+      chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
       sendResponse({ ok: true });
       break;
 
@@ -74,6 +75,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'CLEAR_SYNC':
       syncState = { tabA: null, tabB: null, offset: 0, isSynced: false };
       saveState();
+      chrome.alarms.clear('driftCheck');
       sendResponse({ ok: true });
       break;
 
@@ -292,6 +294,39 @@ function findOffsetSeconds(samplesA, samplesB, sampleRate) {
   return parseFloat((bestLag / sampleRate).toFixed(2));
 }
 
+// ─── Keyboard shortcuts ───────────────────────────────────────────────────────
+// Alt+Shift+Up / Down nudge the offset by 0.5s and immediately re-seek Tab B.
+chrome.commands.onCommand.addListener(async (command) => {
+  if (!syncState.isSynced) return;
+  const delta = command === 'nudge-up' ? 0.5 : -0.5;
+  syncState.offset = parseFloat((syncState.offset + delta).toFixed(1));
+
+  const resA = await tabMessage(syncState.tabA, { type: 'GET_VIDEO_TIME' });
+  if (resA?.currentTime != null) {
+    const newTimeB = Math.max(0, resA.currentTime - syncState.offset);
+    safeSend(syncState.tabB, { type: 'CMD_SEEK', time: newTimeB });
+  }
+});
+
+// ─── Drift correction ─────────────────────────────────────────────────────────
+// Fires every 60s via chrome.alarms. Corrects drift > 1s silently.
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== 'driftCheck' || !syncState.isSynced) return;
+
+  const [resA, resB] = await Promise.all([
+    tabMessage(syncState.tabA, { type: 'GET_VIDEO_TIME' }),
+    tabMessage(syncState.tabB, { type: 'GET_VIDEO_TIME' })
+  ]);
+
+  if (resA?.currentTime == null || resB?.currentTime == null) return;
+
+  const expectedB = resA.currentTime - syncState.offset;
+  const drift = Math.abs(resB.currentTime - expectedB);
+  if (drift > 1.0) {
+    safeSend(syncState.tabB, { type: 'CMD_SEEK', time: Math.max(0, expectedB) });
+  }
+});
+
 // ─── Cleanup closed tabs ──────────────────────────────────────────────────────
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete videoTabs[tabId];
@@ -299,6 +334,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
     saveState();
+    chrome.alarms.clear('driftCheck');
   }
 });
 
