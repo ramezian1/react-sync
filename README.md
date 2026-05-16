@@ -103,9 +103,10 @@ react-sync/
 - [x] Persist sync state across popup closes and service worker restarts
 - [x] Dark / light mode toggle
 - [x] Tab refresh handling — sync resumes automatically
+- [x] Auto-pause when a video ends
+- [x] Focus-pause fix for Amazon Prime (spoof document.hidden while synced)
+- [x] Audio source selector — choose Tab A, Tab B, or Both
 - [ ] Visual drift indicator
-- [ ] Auto-pause when a video ends
-- [ ] Focus-pause fix for Amazon Prime
 
 ---
 
