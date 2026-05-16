@@ -495,6 +495,26 @@ body.light .status-dot.synced { background: var(--accent); }
 
 .refresh-btn:hover { color: var(--text); }
 
+/* ── Footer row ──────────────────────────────────────────────── */
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shortcuts-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+
+.shortcuts-btn:hover { color: var(--text); }
+
 /* ── Tab favicon ─────────────────────────────────────────────── */
 .tab-fav {
   width: 14px;
