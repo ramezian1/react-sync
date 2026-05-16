@@ -539,6 +539,20 @@ body.light .status-dot.synced { background: var(--accent); }
 
 .donate-btn:hover { color: #ea4aaa; }
 
+.donate-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--border);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  padding: 2px 0 2px 2px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.donate-dismiss:hover { color: var(--muted); }
+
 /* ── Tab favicon ─────────────────────────────────────────────── */
 .tab-fav {
   width: 14px;

@@ -12,7 +12,9 @@ const statusBar    = document.getElementById('statusBar');
 const statusDot    = document.getElementById('statusDot');
 const refreshBtn   = document.getElementById('refreshBtn');
 const shortcutsBtn = document.getElementById('shortcutsBtn');
-const donateBtn    = document.getElementById('donateBtn');
+const donateBtn      = document.getElementById('donateBtn');
+const donateDismiss  = document.getElementById('donateDismiss');
+const donateSep      = document.getElementById('donateSep');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
@@ -191,6 +193,21 @@ shortcutsBtn.addEventListener('click', () => {
 
 donateBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
+});
+
+donateDismiss.addEventListener('click', () => {
+  hideDonate();
+  chrome.storage.local.set({ donateDismissed: true });
+});
+
+function hideDonate() {
+  donateBtn.hidden = true;
+  donateDismiss.hidden = true;
+  donateSep.hidden = true;
+}
+
+chrome.storage.local.get('donateDismissed', ({ donateDismissed }) => {
+  if (donateDismissed) hideDonate();
 });
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
