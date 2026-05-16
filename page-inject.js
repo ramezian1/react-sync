@@ -89,6 +89,10 @@ window.addEventListener('message', (e) => {
     videoEl.pause();
   } else if (type === 'CMD_SEEK') {
     videoEl.currentTime = Math.max(0, e.data.time);
+  } else if (type === 'CMD_MUTE') {
+    videoEl.muted = true;
+  } else if (type === 'CMD_UNMUTE') {
+    videoEl.muted = false;
   }
 });
 
