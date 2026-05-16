@@ -304,5 +304,100 @@ dismissDetectedBtn.addEventListener('click', () => {
   setStatus('Dismissed — offset unchanged');
 });
 
+// ─── Onboarding ───────────────────────────────────────────────────────────────
+const ONBOARD_STEPS = [
+  {
+    getEl: () => document.querySelector('.tab-label.reaction').closest('.tab-row'),
+    text:  'Select your <strong>reaction video</strong> tab — the one with the reactor.',
+    place: 'below'
+  },
+  {
+    getEl: () => document.querySelector('.tab-label.source').closest('.tab-row'),
+    text:  'Select your <strong>source video</strong> tab — the original movie or show.',
+    place: 'below'
+  },
+  {
+    getEl: () => document.querySelector('.offset-section'),
+    text:  'Set how many seconds <strong>Tab A is ahead</strong> of Tab B. Fine-tune with the nudge buttons while watching.',
+    place: 'below'
+  },
+  {
+    getEl: () => syncBtn,
+    text:  'Hit <strong>SYNC</strong> — play either video and the other follows automatically!',
+    place: 'above'
+  }
+];
+
+let _onboardStep = 0;
+let _onboardBackdrop, _onboardTip, _onboardPrevEl;
+
+function startOnboarding() {
+  _onboardBackdrop = document.createElement('div');
+  _onboardBackdrop.className = 'onboard-backdrop';
+  document.body.appendChild(_onboardBackdrop);
+
+  _onboardTip = document.createElement('div');
+  _onboardTip.className = 'onboard-tip';
+  _onboardTip.innerHTML = `
+    <div class="onboard-header">
+      <span class="onboard-count" id="onboardCount"></span>
+      <button class="onboard-skip" id="onboardSkip">skip</button>
+    </div>
+    <p class="onboard-text" id="onboardText"></p>
+    <button class="onboard-next" id="onboardNext"></button>
+  `;
+  document.querySelector('.app').appendChild(_onboardTip);
+
+  document.getElementById('onboardSkip').addEventListener('click', finishOnboarding);
+  document.getElementById('onboardNext').addEventListener('click', () => {
+    _onboardStep++;
+    if (_onboardStep >= ONBOARD_STEPS.length) finishOnboarding();
+    else showOnboardStep(_onboardStep);
+  });
+
+  showOnboardStep(0);
+}
+
+function showOnboardStep(i) {
+  const step = ONBOARD_STEPS[i];
+
+  if (_onboardPrevEl) _onboardPrevEl.classList.remove('onboard-highlight');
+  const el = step.getEl();
+  el.classList.add('onboard-highlight');
+  _onboardPrevEl = el;
+
+  document.getElementById('onboardCount').textContent = `${i + 1} / ${ONBOARD_STEPS.length}`;
+  document.getElementById('onboardText').innerHTML = step.text;
+  document.getElementById('onboardNext').textContent = i === ONBOARD_STEPS.length - 1 ? 'Got it!' : 'Next →';
+
+  _onboardTip.className = `onboard-tip tip-${step.place}`;
+
+  const app = document.querySelector('.app');
+  const appRect = app.getBoundingClientRect();
+  const elRect  = el.getBoundingClientRect();
+
+  if (step.place === 'below') {
+    _onboardTip.style.top    = (elRect.bottom - appRect.top + 10) + 'px';
+    _onboardTip.style.bottom = '';
+  } else {
+    _onboardTip.style.bottom = (appRect.bottom - elRect.top + 10) + 'px';
+    _onboardTip.style.top    = '';
+  }
+}
+
+function finishOnboarding() {
+  if (_onboardPrevEl) _onboardPrevEl.classList.remove('onboard-highlight');
+  _onboardBackdrop?.remove();
+  _onboardTip?.remove();
+  chrome.storage.local.set({ onboardingDone: true });
+}
+
 // ─── Kick off ─────────────────────────────────────────────────────────────────
-init();
+async function main() {
+  await init();
+  chrome.storage.local.get('onboardingDone', ({ onboardingDone }) => {
+    if (!onboardingDone) startOnboarding();
+  });
+}
+
+main();

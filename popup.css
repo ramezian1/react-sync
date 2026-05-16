@@ -32,6 +32,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
@@ -561,6 +562,107 @@ body.light .status-dot.synced { background: var(--accent); }
   flex-shrink: 0;
   object-fit: contain;
 }
+
+/* ── Onboarding ──────────────────────────────────────────────── */
+.onboard-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.onboard-highlight {
+  position: relative;
+  z-index: 101;
+  border-radius: var(--radius);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(0, 229, 160, 0.15);
+}
+
+.onboard-tip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 102;
+  background: var(--surface);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: all;
+}
+
+.onboard-tip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+}
+
+.onboard-tip.tip-below::before {
+  top: -12px;
+  border-bottom-color: var(--accent-dim);
+}
+
+.onboard-tip.tip-above::before {
+  bottom: -12px;
+  border-top-color: var(--accent-dim);
+}
+
+.onboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.onboard-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.onboard-skip {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.onboard-skip:hover { color: var(--text); }
+
+.onboard-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.onboard-text strong { color: var(--accent); font-weight: 600; }
+
+.onboard-next {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.15s;
+}
+
+.onboard-next:hover { background: #00ffb3; }
 
 /* ── Light theme (follows OS preference) ────────────────────── */
 @media (prefers-color-scheme: light) {
