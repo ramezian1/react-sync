@@ -20,6 +20,7 @@ const autoDetectValue  = document.getElementById('autoDetectValue');
 const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
 const themeToggle      = document.getElementById('themeToggle');
+const audioRow         = document.getElementById('audioRow');
 const audioBtns        = document.querySelectorAll('.audio-btn');
 
 let nudgeSize = 0.5;
@@ -164,7 +165,7 @@ syncBtn.addEventListener('click', () => {
       if (res?.ok) {
         saveOffset(offset);
         setSynced(true);
-        setStatus(`✓ Synced — offset: ${offset}s`, 'ok');
+        setStatus(`✓ Synced — pick your audio source above`, 'ok');
       }
     }
   );
@@ -208,7 +209,11 @@ function setSynced(active) {
   statusDot.classList.toggle('synced', active);
   syncBtn.classList.toggle('active', active);
   autoDetectBtn.disabled = !active;
-  if (!active) hideDetectedResult();
+  audioRow.hidden = !active;
+  if (!active) {
+    hideDetectedResult();
+    setAudioBtn('both');
+  }
 }
 
 function truncate(str, len) {

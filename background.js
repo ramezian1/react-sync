@@ -7,7 +7,7 @@ let syncState = {
   tabB: null,       // Source video tab ID
   offset: 0,        // Seconds tabA is AHEAD of tabB (can be negative)
   isSynced: false,
-  audioSource: 'A'  // 'A', 'B', or 'both'
+  audioSource: 'both' // 'A', 'B', or 'both'
 };
 
 // Tabs that have reported a video element
@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Popup clears sync
     case 'CLEAR_SYNC':
       unmuteAll();
-      syncState = { tabA: null, tabB: null, offset: 0, isSynced: false, audioSource: 'A' };
+      syncState = { tabA: null, tabB: null, offset: 0, isSynced: false, audioSource: 'both' };
       saveState();
       chrome.alarms.clear('driftCheck');
       sendResponse({ ok: true });
