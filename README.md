@@ -130,3 +130,11 @@ react-sync/
 ## Author
 
 Bobby Mezian — [github.com/ramezian1](https://github.com/ramezian1)
+
+---
+
+## Support
+
+If ReactSync saves you time, consider sponsoring — it helps keep the project maintained and growing.
+
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)
