@@ -20,6 +20,7 @@ const autoDetectValue  = document.getElementById('autoDetectValue');
 const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
 const themeToggle      = document.getElementById('themeToggle');
+const audioBtns        = document.querySelectorAll('.audio-btn');
 
 let nudgeSize = 0.5;
 let tabsCache = []; // kept so favicon lookups work after loadTabs()
@@ -33,6 +34,19 @@ themeToggle.addEventListener('click', () => {
   const isLight = document.body.classList.toggle('light');
   chrome.storage.local.set({ theme: isLight ? 'light' : 'dark' });
 });
+
+// ─── Audio source ─────────────────────────────────────────────────────────────
+audioBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    audioBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chrome.runtime.sendMessage({ type: 'SET_AUDIO', audioSource: btn.dataset.audio });
+  });
+});
+
+function setAudioBtn(source) {
+  audioBtns.forEach(b => b.classList.toggle('active', b.dataset.audio === source));
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -96,6 +110,8 @@ async function restoreSyncState() {
         updateFavicon(tabAFav, state.tabA);
         updateFavicon(tabBFav, state.tabB);
         setSynced(true);
+
+        setAudioBtn(state.audioSource || 'A');
 
         if (state.reloadingA || state.reloadingB) {
           const which = (state.reloadingA && state.reloadingB) ? 'Both tabs'

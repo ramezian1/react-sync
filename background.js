@@ -6,7 +6,8 @@ let syncState = {
   tabA: null,       // Reaction video tab ID
   tabB: null,       // Source video tab ID
   offset: 0,        // Seconds tabA is AHEAD of tabB (can be negative)
-  isSynced: false
+  isSynced: false,
+  audioSource: 'A'  // 'A', 'B', or 'both'
 };
 
 // Tabs that have reported a video element
@@ -67,13 +68,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.offset = parseFloat(message.offset) || 0;
       syncState.isSynced = true;
       saveState();
+      applyAudio();
       chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
+      sendResponse({ ok: true });
+      break;
+
+    // Popup sets audio source
+    case 'SET_AUDIO':
+      syncState.audioSource = message.audioSource;
+      saveState();
+      applyAudio();
       sendResponse({ ok: true });
       break;
 
     // Popup clears sync
     case 'CLEAR_SYNC':
-      syncState = { tabA: null, tabB: null, offset: 0, isSynced: false };
+      unmuteAll();
+      syncState = { tabA: null, tabB: null, offset: 0, isSynced: false, audioSource: 'A' };
       saveState();
       chrome.alarms.clear('driftCheck');
       sendResponse({ ok: true });
@@ -174,6 +185,26 @@ function calculateTargetTime(fromTabId, currentTime) {
 function safeSend(tabId, message) {
   if (reloadingTabs.has(tabId)) return; // skip — tab is mid-reload
   chrome.tabs.sendMessage(tabId, message).catch(() => {});
+}
+
+function applyAudio() {
+  if (!syncState.isSynced) return;
+  const { tabA, tabB, audioSource } = syncState;
+  if (audioSource === 'A') {
+    safeSend(tabA, { type: 'CMD_UNMUTE' });
+    safeSend(tabB, { type: 'CMD_MUTE' });
+  } else if (audioSource === 'B') {
+    safeSend(tabA, { type: 'CMD_MUTE' });
+    safeSend(tabB, { type: 'CMD_UNMUTE' });
+  } else {
+    safeSend(tabA, { type: 'CMD_UNMUTE' });
+    safeSend(tabB, { type: 'CMD_UNMUTE' });
+  }
+}
+
+function unmuteAll() {
+  if (syncState.tabA) safeSend(syncState.tabA, { type: 'CMD_UNMUTE' });
+  if (syncState.tabB) safeSend(syncState.tabB, { type: 'CMD_UNMUTE' });
 }
 
 // Callback-based wrapper so Promise.all works with the sendResponse pattern
