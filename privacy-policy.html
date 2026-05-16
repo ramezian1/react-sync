@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReactSync — Privacy Policy</title>
+  <style>
+    :root {
+      --bg:      #0e0e10;
+      --surface: #18181c;
+      --border:  #2a2a30;
+      --accent:  #00e5a0;
+      --text:    #e2e2e6;
+      --muted:   #6b6b78;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      padding: 48px 24px;
+    }
+
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .updated {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 32px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    p { margin-bottom: 12px; color: var(--text); }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    ul li { margin-bottom: 6px; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+
+    .card p { margin: 0; font-size: 15px; }
+
+    footer {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="logo">⟳ ReactSync</div>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: May 2026</p>
+
+    <div class="card">
+      <p><strong>Short version:</strong> ReactSync collects no data whatsoever. Everything stays on your device. Nothing is sent anywhere.</p>
+    </div>
+
+    <h2>What We Collect</h2>
+    <p>Nothing. ReactSync does not collect, store, transmit, or share any personal data, browsing history, video metadata, or any other information.</p>
+
+    <h2>How It Works</h2>
+    <p>ReactSync operates entirely within your browser:</p>
+    <ul>
+      <li>It reads the current playback time of video elements on the pages you choose to sync.</li>
+      <li>It sends play, pause, and seek commands between your selected browser tabs.</li>
+      <li>Your tab selections and offset setting are saved locally using <code>chrome.storage.session</code> and <code>chrome.storage.local</code> — this data never leaves your device.</li>
+      <li>The auto-detect offset feature captures a few seconds of audio from your video tabs using the browser's Web Audio API. This audio is processed locally in real time and immediately discarded — it is never recorded or transmitted.</li>
+    </ul>
+
+    <h2>Permissions Explained</h2>
+    <ul>
+      <li><strong>tabs</strong> — to list your open tabs so you can select which ones to sync.</li>
+      <li><strong>scripting</strong> — to inject the video hook that detects play/pause/seek events on video pages.</li>
+      <li><strong>storage</strong> — to save your tab selection and offset locally so the popup remembers your settings.</li>
+      <li><strong>activeTab</strong> — to interact with the currently active tab when the popup is open.</li>
+      <li><strong>host_permissions (&lt;all_urls&gt;)</strong> — required so the extension can attach to video players on any website (YouTube, Netflix, Patreon, etc.). No data from these pages is collected or transmitted.</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <p>ReactSync does not use any analytics, crash reporting, advertising, or third-party services of any kind.</p>
+
+    <h2>Changes to This Policy</h2>
+    <p>If this policy ever changes, the updated version will be posted at this URL with a new "Last updated" date.</p>
+
+    <h2>Contact</h2>
+    <p>Questions? Open an issue on <a href="https://github.com/ramezian1/react-sync" target="_blank">GitHub</a>.</p>
+
+    <footer>
+      ReactSync is open source — <a href="https://github.com/ramezian1/react-sync" target="_blank">github.com/ramezian1/react-sync</a>
+    </footer>
+
+  </div>
+</body>
+</html>
