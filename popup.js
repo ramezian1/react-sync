@@ -195,7 +195,7 @@ donateBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
 });
 
-const DONATE_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const DONATE_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 donateDismiss.addEventListener('click', () => {
   hideDonate();
