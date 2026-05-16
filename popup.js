@@ -11,6 +11,7 @@ const clearBtn     = document.getElementById('clearBtn');
 const statusBar    = document.getElementById('statusBar');
 const statusDot    = document.getElementById('statusDot');
 const refreshBtn   = document.getElementById('refreshBtn');
+const shortcutsBtn = document.getElementById('shortcutsBtn');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
@@ -181,6 +182,11 @@ clearBtn.addEventListener('click', () => {
 
 // ─── Refresh button ───────────────────────────────────────────────────────────
 refreshBtn.addEventListener('click', loadTabs);
+
+// ─── Shortcuts button ─────────────────────────────────────────────────────────
+shortcutsBtn.addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('shortcuts.html') });
+});
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
 nudgeUp.addEventListener('click', () => {

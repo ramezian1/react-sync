@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ReactSync — Keyboard Shortcuts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0e0e10;
+      --surface:  #18181c;
+      --border:   #2a2a30;
+      --accent:   #00e5a0;
+      --accent-dim:#00a872;
+      --text:     #e2e2e6;
+      --muted:    #6b6b78;
+      --tag-a:    #7b5ea7;
+      --tag-b:    #2d7dd2;
+      --radius:   6px;
+      --mono:     'JetBrains Mono', monospace;
+      --ui:       'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ui);
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      color: var(--accent);
+      animation: spin-idle 6s linear infinite;
+    }
+
+    @keyframes spin-idle {
+      0%, 80%   { transform: rotate(0deg); }
+      100%      { transform: rotate(360deg); }
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: auto;
+      font-family: var(--mono);
+    }
+
+    /* ── Section ── */
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    /* ── Shortcut rows ── */
+    .shortcut {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+    }
+
+    .keys {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 3px 8px;
+      min-width: 32px;
+      white-space: nowrap;
+    }
+
+    .key-sep {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .shortcut-desc {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .shortcut-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Note box ── */
+    .note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-dim);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .note a {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .note a:hover { text-decoration: underline; }
+
+    /* ── Tag badges ── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 11px;
+      color: #fff;
+      vertical-align: middle;
+    }
+    .tag-a { background: var(--tag-a); }
+    .tag-b { background: var(--tag-b); }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:      #f2f2f7;
+        --surface: #ffffff;
+        --border:  #d1d1d6;
+        --text:    #1c1c1e;
+        --muted:   #6c6c70;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="header">
+      <span class="logo-icon">⟳</span>
+      <span class="logo-text">ReactSync</span>
+      <span class="header-sub">Keyboard Shortcuts</span>
+    </header>
+
+    <!-- Offset nudge -->
+    <div class="section">
+      <div class="section-title">Offset Nudge</div>
+
+      <div class="shortcut">
+        <div class="keys">
+          <span class="key">Alt</span>
+          <span class="key-sep">+</span>
+          <span class="key">Shift</span>
+          <span class="key-sep">+</span>
+          <span class="key">↑</span>
+        </div>
+        <div class="shortcut-desc">
+          Nudge offset +0.5s
+          <div class="shortcut-hint"><span class="tag tag-a">A</span> moves further ahead of <span class="tag tag-b">B</span></div>
+        </div>
+      </div>
+
+      <div class="shortcut">
+        <div class="keys">
+          <span class="key">Alt</span>
+          <span class="key-sep">+</span>
+          <span class="key">Shift</span>
+          <span class="key-sep">+</span>
+          <span class="key">↓</span>
+        </div>
+        <div class="shortcut-desc">
+          Nudge offset −0.5s
+          <div class="shortcut-hint"><span class="tag tag-b">B</span> moves further ahead of <span class="tag tag-a">A</span></div>
+        </div>
+      </div>
+
+      <div class="note">
+        Nudge shortcuts work from any tab — you don't need to open the popup. The offset adjusts live and <span class="tag tag-b">B</span> seeks immediately to the new position.<br><br>
+        These shortcuts only take effect while a sync is active.
+      </div>
+    </div>
+
+    <!-- Customise -->
+    <div class="section">
+      <div class="section-title">Customise Shortcuts</div>
+      <div class="note">
+        Chrome lets you remap these to any key combo you prefer.<br><br>
+        Go to <a href="chrome://extensions/shortcuts" onclick="event.preventDefault(); navigator.clipboard.writeText('chrome://extensions/shortcuts')">chrome://extensions/shortcuts</a> (click to copy, then paste in the address bar) and look for <strong>ReactSync</strong>.
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="section">
+      <div class="section-title">Tips</div>
+      <div class="note">
+        <strong>Fine-tuning:</strong> Use the popup nudge buttons (or shortcuts) while both videos are playing to dial in the offset by ear. Aim for the reaction video's audio to feel natural over the source.<br><br>
+        <strong>Auto-detect:</strong> Hit <em>◎ auto-detect offset</em> in the popup once both tabs are playing — it cross-correlates the audio and sets the offset automatically. Works on YouTube; blocked on DRM-protected sites (Netflix, Disney+).
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

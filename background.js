@@ -69,6 +69,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.isSynced = true;
       saveState();
       applyAudio();
+      safeSend(syncState.tabA, { type: 'CMD_SYNC_ACTIVE', active: true });
+      safeSend(syncState.tabB, { type: 'CMD_SYNC_ACTIVE', active: true });
       chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
       sendResponse({ ok: true });
       break;
@@ -83,6 +85,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Popup clears sync
     case 'CLEAR_SYNC':
+      safeSend(syncState.tabA, { type: 'CMD_SYNC_ACTIVE', active: false });
+      safeSend(syncState.tabB, { type: 'CMD_SYNC_ACTIVE', active: false });
       unmuteAll();
       syncState = { tabA: null, tabB: null, offset: 0, isSynced: false, audioSource: 'both' };
       saveState();
@@ -135,6 +139,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'VIDEO_SEEK':
       if (!syncState.isSynced) break;
       handleSeek(senderTabId, message.currentTime);
+      break;
+
+    case 'VIDEO_ENDED':
+      if (!syncState.isSynced) break;
+      handlePause(senderTabId);
       break;
   }
 });

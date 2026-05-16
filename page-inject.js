@@ -6,6 +6,20 @@
 let videoEl = null;
 let suppressEvents = false;
 let suppressTimeout = null;
+let syncActive = false;
+
+// Prevent focus-pause (Amazon Prime Video, etc.) while sync is active
+// by spoofing document.hidden / visibilityState in MAIN world.
+const _hiddenDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden');
+const _visDesc    = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
+Object.defineProperty(document, 'hidden', {
+  get() { return syncActive ? false : _hiddenDesc.get.call(this); },
+  configurable: true
+});
+Object.defineProperty(document, 'visibilityState', {
+  get() { return syncActive ? 'visible' : _visDesc.get.call(this); },
+  configurable: true
+});
 
 function suppress(duration = 500) {
   suppressEvents = true;
@@ -51,12 +65,22 @@ function attachToVideo(video) {
       window.postMessage({ __rs: true, type: 'VIDEO_SEEK', currentTime: video.currentTime }, '*');
     }, 300);
   });
+
+  video.addEventListener('ended', () => {
+    if (suppressEvents) return;
+    window.postMessage({ __rs: true, type: 'VIDEO_ENDED' }, '*');
+  });
 }
 
 // Handle commands and time queries relayed from content.js
 window.addEventListener('message', (e) => {
   if (!e.data?.__rsCmd) return;
   const { type, reqId } = e.data;
+
+  if (type === 'CMD_SYNC_ACTIVE') {
+    syncActive = e.data.active;
+    return;
+  }
 
   if (type === 'PING') {
     window.postMessage({ __rs: true, type: 'PING_RESPONSE', reqId, hasVideo: !!findVideo() }, '*');
