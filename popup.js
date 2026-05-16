@@ -195,9 +195,11 @@ donateBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
 });
 
+const DONATE_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 donateDismiss.addEventListener('click', () => {
   hideDonate();
-  chrome.storage.local.set({ donateDismissed: true });
+  chrome.storage.local.set({ donateSnoozedAt: Date.now() });
 });
 
 function hideDonate() {
@@ -206,8 +208,8 @@ function hideDonate() {
   donateSep.hidden = true;
 }
 
-chrome.storage.local.get('donateDismissed', ({ donateDismissed }) => {
-  if (donateDismissed) hideDonate();
+chrome.storage.local.get('donateSnoozedAt', ({ donateSnoozedAt }) => {
+  if (donateSnoozedAt && Date.now() - donateSnoozedAt < DONATE_SNOOZE_MS) hideDonate();
 });
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
