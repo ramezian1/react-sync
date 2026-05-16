@@ -2,6 +2,9 @@
 
 [![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)
 [![License: MIT](https://img.shields.io/badge/license-MIT-00e5a0)](LICENSE)
+![Beta](https://img.shields.io/badge/status-beta-yellow)
+
+> ⚠️ **Currently in beta** — available for Chrome. Feedback and bug reports are welcome via [GitHub Issues](https://github.com/ramezian1/react-sync/issues).
 
 > Sync reaction videos with source videos across browser tabs. Set the offset once — it handles the rest.
 
