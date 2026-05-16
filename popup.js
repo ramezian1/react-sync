@@ -12,6 +12,7 @@ const statusBar    = document.getElementById('statusBar');
 const statusDot    = document.getElementById('statusDot');
 const refreshBtn   = document.getElementById('refreshBtn');
 const shortcutsBtn = document.getElementById('shortcutsBtn');
+const donateBtn    = document.getElementById('donateBtn');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
@@ -186,6 +187,10 @@ refreshBtn.addEventListener('click', loadTabs);
 // ─── Shortcuts button ─────────────────────────────────────────────────────────
 shortcutsBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('shortcuts.html') });
+});
+
+donateBtn.addEventListener('click', () => {
+  chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
 });
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────

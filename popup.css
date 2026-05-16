@@ -515,6 +515,30 @@ body.light .status-dot.synced { background: var(--accent); }
 
 .shortcuts-btn:hover { color: var(--text); }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer-sep {
+  color: var(--border);
+  font-size: 11px;
+}
+
+.donate-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+
+.donate-btn:hover { color: #ea4aaa; }
+
 /* ── Tab favicon ─────────────────────────────────────────────── */
 .tab-fav {
   width: 14px;
