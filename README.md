@@ -106,7 +106,6 @@ react-sync/
 - [x] Auto-pause when a video ends
 - [x] Focus-pause fix for Amazon Prime (spoof document.hidden while synced)
 - [x] Audio source selector — choose Tab A, Tab B, or Both
-- [ ] Visual drift indicator
 
 ---
 
