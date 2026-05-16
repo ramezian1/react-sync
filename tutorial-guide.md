@@ -1,7 +1,6 @@
 # ReactSync — Setup & Usage Guide
 
-> **Tested on:** Windows 10/11 with the latest version of Google Chrome.
-> If you're on an older Chrome version, update it first — go to **chrome://settings/help** to check.
+> Make sure you have the **latest version of Google Chrome** installed — go to **chrome://settings/help** to check.
 
 ---
 
@@ -84,7 +83,7 @@ From this point on:
 
 ## Firefox Setup (128+)
 
-> Firefox support is experimental and has only been tested on Windows.
+> Firefox support is experimental.
 
 1. Clone or download the repo
 2. Go to **about:debugging#/runtime/this-firefox**
@@ -97,7 +96,7 @@ From this point on:
 
 ## Supported Sites
 
-> Tested on **Windows 10/11 + latest Chrome**. Behaviour on other operating systems or browsers may vary.
+> Requires the **latest version of Chrome**. Behaviour on other browsers may vary.
 
 | Site | Sync | Auto-detect offset |
 |------|:----:|:-----------------:|
