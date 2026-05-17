@@ -3,7 +3,7 @@
   "name": "ReactSync",
   "version": "1.0.0",
   "description": "Sync reaction videos with source videos across browser tabs. Set it once, forget it forever.",
-  "permissions": ["tabs", "scripting", "storage", "activeTab", "alarms"],
+  "permissions": ["tabs", "storage", "activeTab", "alarms"],
   "host_permissions": ["<all_urls>"],
   "browser_specific_settings": {
     "gecko": {
