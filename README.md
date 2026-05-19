@@ -1,14 +1,8 @@
 # ReactSync 🔄
 
-[![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)
-[![License: MIT](https://img.shields.io/badge/license-MIT-00e5a0)](LICENSE)
-![Beta](https://img.shields.io/badge/status-beta-yellow)
-
-> ⚠️ **Currently in beta** — available for Chrome. Feedback and bug reports are welcome via [GitHub Issues](https://github.com/ramezian1/react-sync/issues).
-
 > Sync reaction videos with source videos across browser tabs. Set the offset once — it handles the rest.
 
-Built for the classic pain point: watching a reaction video alongside the original on YouTube, Patreon, Netflix, or anywhere else — and having to manually pause/play both every time.
+Built for the classic pain point: watching a Patreon reaction video alongside the original movie/show and having to manually pause/play both every time.
 
 ---
 
@@ -16,13 +10,10 @@ Built for the classic pain point: watching a reaction video alongside the origin
 
 - ✅ Detects video tabs automatically
 - ✅ Set a time offset between Tab A (reaction) and Tab B (source)
-- ✅ Play, pause, and seek events mirror across both tabs in real time
-- ✅ Nudge offset in 0.5s / 1s / 5s increments, or use **Alt+Shift+Up / Down** keyboard shortcuts
-- ✅ Auto-detect offset via audio fingerprinting (~10s, works on non-DRM content)
-- ✅ Sync state persists across popup closes — reopening the popup restores your tabs and offset
-- ✅ Handles tab refreshes — sync resumes automatically once the video reloads
-- ✅ Dark and light mode
-- ✅ Works with YouTube, Patreon, Vimeo, Netflix, Disney+, and any HTML5 video player
+- ✅ Play, pause, and seek events mirror across both tabs
+- ✅ Nudge offset in 0.5s / 1s / 5s increments for fine-tuning
+- ✅ Sync state persists while tabs are open
+- ✅ Works with YouTube, Patreon, Vimeo, Netflix, Disney+, and any HTML5 video
 - ✅ Zero data collected, fully local
 
 ---
@@ -45,7 +36,7 @@ Built for the classic pain point: watching a reaction video alongside the origin
 | ![Paramount+](https://img.shields.io/badge/Paramount+-0064FF?style=flat&logo=paramountplus&logoColor=white) | ✅ | ❌ DRM |
 | ![Peacock](https://img.shields.io/badge/Peacock-000000?style=flat&logo=peacocktv&logoColor=white) | ✅ | ❌ DRM |
 
-> **Auto-detect** requires capturing audio from the video. DRM-protected services block this at the browser level — set the offset manually on those sites.
+> **Auto-detect** requires capturing audio from the video. DRM-protected services block this at the browser level — you'll need to set the offset manually on those sites.
 
 ---
 
@@ -61,7 +52,7 @@ Built for the classic pain point: watching a reaction video alongside the origin
 **Offset explained:**
 - Positive offset = Tab A (reaction) is ahead of Tab B (source)
 - Negative offset = Tab B (source) is further along than Tab A
-- Use the nudge buttons or keyboard shortcuts to fine-tune in real time
+- Use the nudge buttons to fine-tune in real time
 
 ---
 
@@ -71,7 +62,7 @@ Built for the classic pain point: watching a reaction video alongside the origin
 1. Clone this repo
 2. Go to `chrome://extensions`
 3. Enable **Developer Mode** (top right toggle)
-4. Click **Load unpacked** → select the `react-sync` folder
+4. Click **Load unpacked** → select the `reactsync` folder
 5. Pin the extension from the toolbar puzzle icon
 
 ### Firefox (128+)
@@ -84,7 +75,7 @@ Built for the classic pain point: watching a reaction video alongside the origin
 ## Project Structure
 
 ```
-react-sync/
+reactsync/
 ├── manifest.json       # Extension config (Manifest V3)
 ├── popup.html          # Popup UI
 ├── popup.css           # Popup styles
@@ -103,12 +94,9 @@ react-sync/
 - [x] Auto-detect offset by audio fingerprinting (±10s range, works on non-DRM content)
 - [x] Firefox support (Firefox 128+)
 - [x] Keyboard shortcut for nudging offset while watching (Alt+Shift+Up / Down)
-- [x] Persist sync state across popup closes and service worker restarts
-- [x] Dark / light mode toggle
-- [x] Tab refresh handling — sync resumes automatically
-- [x] Auto-pause when a video ends
-- [x] Focus-pause fix for Amazon Prime (spoof document.hidden while synced)
-- [x] Audio source selector — choose Tab A, Tab B, or Both
+- [x] Tab favicons in dropdowns
+- [x] Persist last used offset across popup sessions
+- [x] Auto drift correction (checks every 60s)
 
 ---
 
@@ -118,25 +106,15 @@ react-sync/
 - Chrome Extensions Manifest V3
 - YouTube HTML5 video API + generic `<video>` element events
 - `chrome.tabs` messaging for cross-tab sync
-- Web Audio API + FFT cross-correlation for offset auto-detection
 
 ---
 
 ## Documentation
 
-- [Setup & Usage Guide](tutorial-guide.md) — step-by-step instructions, supported sites, and tips
-- [Privacy Policy](https://ramezian1.github.io/react-sync/privacy-policy.html)
+- [tutorial-guide.md](tutorial-guide.md) — step-by-step setup, usage, and supported sites
 
 ---
 
 ## Author
 
 Bobby Mezian — [github.com/ramezian1](https://github.com/ramezian1)
-
----
-
-## Support
-
-If ReactSync saves you time, consider sponsoring — it helps keep the project maintained and growing.
-
-[![GitHub Sponsors](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/ramezian1)

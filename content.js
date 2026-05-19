@@ -28,10 +28,6 @@ window.addEventListener('message', (e) => {
     case 'VIDEO_SEEK':
       chrome.runtime.sendMessage({ type: 'VIDEO_SEEK', currentTime }).catch(() => {});
       break;
-
-    case 'VIDEO_ENDED':
-      chrome.runtime.sendMessage({ type: 'VIDEO_ENDED' }).catch(() => {});
-      break;
   }
 });
 
@@ -40,8 +36,7 @@ window.addEventListener('message', (e) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { type } = message;
 
-  if (type === 'CMD_PLAY' || type === 'CMD_PAUSE' || type === 'CMD_SEEK' ||
-      type === 'CMD_MUTE' || type === 'CMD_UNMUTE' || type === 'CMD_SYNC_ACTIVE') {
+  if (type === 'CMD_PLAY' || type === 'CMD_PAUSE' || type === 'CMD_SEEK') {
     window.postMessage({ __rsCmd: true, ...message }, '*');
     return;
   }

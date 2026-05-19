@@ -1,6 +1,7 @@
 # ReactSync — Setup & Usage Guide
 
-> Make sure you have the **latest version of Google Chrome** installed — go to **chrome://settings/help** to check.
+> **Tested on:** Windows 10/11 with the latest version of Google Chrome.
+> If you're on an older Chrome version, update it first — go to **chrome://settings/help** to check.
 
 ---
 
@@ -78,50 +79,12 @@ From this point on:
 - Press play on either tab → the other follows
 - Pause either tab → the other pauses
 - Scrub / seek either tab → the other jumps to the correct position
-- When one video ends → the other pauses automatically
-
----
-
-## Step 8: Choose Your Audio Source
-
-After clicking SYNC, an **🔊 Audio** row appears in the popup with three options:
-
-| Option | What it does |
-|--------|-------------|
-| **Tab A** | Mutes Tab B — you only hear the reaction video's audio |
-| **Tab B** | Mutes Tab A — you only hear the source video's audio |
-| **Both** | Neither tab is muted — audio plays from both (default) |
-
-> **Tip:** Most people want **Tab A** — you hear the reactor's commentary and the source audio through their recording. Use **Tab B** if you prefer clean source audio only. **Both** is useful when the two videos are very different (e.g. two reaction channels watching the same clip).
-
-The audio setting is remembered if you reopen the popup while synced.
-
----
-
-## Nudge Shortcuts
-
-Fine-tune the offset while watching without opening the popup:
-
-| Shortcut | Effect |
-|----------|--------|
-| **Alt + Shift + ↑** | Offset +0.5s (Tab A moves further ahead) |
-| **Alt + Shift + ↓** | Offset −0.5s (Tab B moves further ahead) |
-
-These work from any tab while a sync is active. You can remap them at `chrome://extensions/shortcuts`.
-
-For a full shortcut reference, click **⌨ shortcuts** in the popup footer.
-
----
-
-## Amazon Prime Video
-
-Amazon Prime pauses video when you switch tabs. ReactSync automatically prevents this while sync is active — you can freely switch tabs without Prime pausing. This fix turns off when you click **CLEAR**.
 
 ---
 
 ## Firefox Setup (128+)
 
-> Firefox support is experimental.
+> Firefox support is experimental and has only been tested on Windows.
 
 1. Clone or download the repo
 2. Go to **about:debugging#/runtime/this-firefox**
@@ -132,15 +95,9 @@ Amazon Prime pauses video when you switch tabs. ReactSync automatically prevents
 
 ---
 
-## Dark / Light Mode
-
-Click the **◑** button in the top-right of the popup to toggle between dark and light mode. Your preference is saved automatically.
-
----
-
 ## Supported Sites
 
-> Requires the **latest version of Chrome**. Behaviour on other browsers may vary.
+> Tested on **Windows 10/11 + latest Chrome**. Behaviour on other operating systems or browsers may vary.
 
 | Site | Sync | Auto-detect offset |
 |------|:----:|:-----------------:|
@@ -164,10 +121,8 @@ Click the **◑** button in the top-right of the popup to toggle between dark an
 
 | Situation | What to do |
 |-----------|------------|
-| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) or Alt+Shift+↑/↓ to fine-tune while watching |
+| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) to fine-tune while watching |
 | Tab not showing in dropdown | The video must be loaded first — hit ↻ refresh tabs |
 | Netflix / Disney+ | Sync works, but auto-detect is blocked by DRM — set offset manually |
-| Amazon Prime pauses when switching tabs | This is fixed automatically while synced |
 | Want to stop syncing | Click **CLEAR** |
 | Switched to a new video | Hit CLEAR, reload the tabs, then re-sync |
-| Only hearing one video | Check the 🔊 Audio selector — switch to **Both** if you want audio from both tabs |
