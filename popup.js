@@ -11,10 +11,6 @@ const clearBtn     = document.getElementById('clearBtn');
 const statusBar    = document.getElementById('statusBar');
 const statusDot    = document.getElementById('statusDot');
 const refreshBtn   = document.getElementById('refreshBtn');
-const shortcutsBtn = document.getElementById('shortcutsBtn');
-const donateBtn      = document.getElementById('donateBtn');
-const donateDismiss  = document.getElementById('donateDismiss');
-const donateSep      = document.getElementById('donateSep');
 const nudgeUp      = document.getElementById('nudgeUp');
 const nudgeDown    = document.getElementById('nudgeDown');
 const nudgeSizeBtns = document.querySelectorAll('.nudge-size-btn');
@@ -23,35 +19,9 @@ const autoDetectResult = document.getElementById('autoDetectResult');
 const autoDetectValue  = document.getElementById('autoDetectValue');
 const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
-const themeToggle      = document.getElementById('themeToggle');
-const audioRow         = document.getElementById('audioRow');
-const audioBtns        = document.querySelectorAll('.audio-btn');
 
 let nudgeSize = 0.5;
 let tabsCache = []; // kept so favicon lookups work after loadTabs()
-
-// ─── Theme toggle ─────────────────────────────────────────────────────────────
-chrome.storage.local.get(['theme'], ({ theme }) => {
-  if (theme === 'light') document.body.classList.add('light');
-});
-
-themeToggle.addEventListener('click', () => {
-  const isLight = document.body.classList.toggle('light');
-  chrome.storage.local.set({ theme: isLight ? 'light' : 'dark' });
-});
-
-// ─── Audio source ─────────────────────────────────────────────────────────────
-audioBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    audioBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    chrome.runtime.sendMessage({ type: 'SET_AUDIO', audioSource: btn.dataset.audio });
-  });
-});
-
-function setAudioBtn(source) {
-  audioBtns.forEach(b => b.classList.toggle('active', b.dataset.audio === source));
-}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -115,16 +85,7 @@ async function restoreSyncState() {
         updateFavicon(tabAFav, state.tabA);
         updateFavicon(tabBFav, state.tabB);
         setSynced(true);
-
-        setAudioBtn(state.audioSource || 'A');
-
-        if (state.reloadingA || state.reloadingB) {
-          const which = (state.reloadingA && state.reloadingB) ? 'Both tabs'
-                      : state.reloadingA ? 'Tab A' : 'Tab B';
-          setStatus(`⏳ ${which} reloading — sync resumes automatically`, 'warn');
-        } else {
-          setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
-        }
+        setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
       }
       resolve();
     });
@@ -169,7 +130,7 @@ syncBtn.addEventListener('click', () => {
       if (res?.ok) {
         saveOffset(offset);
         setSynced(true);
-        setStatus(`✓ Synced — pick your audio source above`, 'ok');
+        setStatus(`✓ Synced — offset: ${offset}s`, 'ok');
       }
     }
   );
@@ -185,32 +146,6 @@ clearBtn.addEventListener('click', () => {
 
 // ─── Refresh button ───────────────────────────────────────────────────────────
 refreshBtn.addEventListener('click', loadTabs);
-
-// ─── Shortcuts button ─────────────────────────────────────────────────────────
-shortcutsBtn.addEventListener('click', () => {
-  chrome.tabs.create({ url: chrome.runtime.getURL('shortcuts.html') });
-});
-
-donateBtn.addEventListener('click', () => {
-  chrome.tabs.create({ url: 'https://github.com/sponsors/ramezian1' });
-});
-
-const DONATE_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-
-donateDismiss.addEventListener('click', () => {
-  hideDonate();
-  chrome.storage.local.set({ donateSnoozedAt: Date.now() });
-});
-
-function hideDonate() {
-  donateBtn.hidden = true;
-  donateDismiss.hidden = true;
-  donateSep.hidden = true;
-}
-
-chrome.storage.local.get('donateSnoozedAt', ({ donateSnoozedAt }) => {
-  if (donateSnoozedAt && Date.now() - donateSnoozedAt < DONATE_SNOOZE_MS) hideDonate();
-});
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
 nudgeUp.addEventListener('click', () => {
@@ -239,11 +174,7 @@ function setSynced(active) {
   statusDot.classList.toggle('synced', active);
   syncBtn.classList.toggle('active', active);
   autoDetectBtn.disabled = !active;
-  audioRow.hidden = !active;
-  if (!active) {
-    hideDetectedResult();
-    setAudioBtn('both');
-  }
+  if (!active) hideDetectedResult();
 }
 
 function truncate(str, len) {
@@ -304,100 +235,5 @@ dismissDetectedBtn.addEventListener('click', () => {
   setStatus('Dismissed — offset unchanged');
 });
 
-// ─── Onboarding ───────────────────────────────────────────────────────────────
-const ONBOARD_STEPS = [
-  {
-    getEl: () => document.querySelector('.tab-label.reaction').closest('.tab-row'),
-    text:  'Select your <strong>reaction video</strong> tab — the one with the reactor.',
-    place: 'below'
-  },
-  {
-    getEl: () => document.querySelector('.tab-label.source').closest('.tab-row'),
-    text:  'Select your <strong>source video</strong> tab — the original movie or show.',
-    place: 'below'
-  },
-  {
-    getEl: () => document.querySelector('.offset-section'),
-    text:  'Set how many seconds <strong>Tab A is ahead</strong> of Tab B. Fine-tune with the nudge buttons while watching.',
-    place: 'below'
-  },
-  {
-    getEl: () => syncBtn,
-    text:  'Hit <strong>SYNC</strong> — play either video and the other follows automatically!',
-    place: 'above'
-  }
-];
-
-let _onboardStep = 0;
-let _onboardBackdrop, _onboardTip, _onboardPrevEl;
-
-function startOnboarding() {
-  _onboardBackdrop = document.createElement('div');
-  _onboardBackdrop.className = 'onboard-backdrop';
-  document.body.appendChild(_onboardBackdrop);
-
-  _onboardTip = document.createElement('div');
-  _onboardTip.className = 'onboard-tip';
-  _onboardTip.innerHTML = `
-    <div class="onboard-header">
-      <span class="onboard-count" id="onboardCount"></span>
-      <button class="onboard-skip" id="onboardSkip">skip</button>
-    </div>
-    <p class="onboard-text" id="onboardText"></p>
-    <button class="onboard-next" id="onboardNext"></button>
-  `;
-  document.querySelector('.app').appendChild(_onboardTip);
-
-  document.getElementById('onboardSkip').addEventListener('click', finishOnboarding);
-  document.getElementById('onboardNext').addEventListener('click', () => {
-    _onboardStep++;
-    if (_onboardStep >= ONBOARD_STEPS.length) finishOnboarding();
-    else showOnboardStep(_onboardStep);
-  });
-
-  showOnboardStep(0);
-}
-
-function showOnboardStep(i) {
-  const step = ONBOARD_STEPS[i];
-
-  if (_onboardPrevEl) _onboardPrevEl.classList.remove('onboard-highlight');
-  const el = step.getEl();
-  el.classList.add('onboard-highlight');
-  _onboardPrevEl = el;
-
-  document.getElementById('onboardCount').textContent = `${i + 1} / ${ONBOARD_STEPS.length}`;
-  document.getElementById('onboardText').innerHTML = step.text;
-  document.getElementById('onboardNext').textContent = i === ONBOARD_STEPS.length - 1 ? 'Got it!' : 'Next →';
-
-  _onboardTip.className = `onboard-tip tip-${step.place}`;
-
-  const app = document.querySelector('.app');
-  const appRect = app.getBoundingClientRect();
-  const elRect  = el.getBoundingClientRect();
-
-  if (step.place === 'below') {
-    _onboardTip.style.top    = (elRect.bottom - appRect.top + 10) + 'px';
-    _onboardTip.style.bottom = '';
-  } else {
-    _onboardTip.style.bottom = (appRect.bottom - elRect.top + 10) + 'px';
-    _onboardTip.style.top    = '';
-  }
-}
-
-function finishOnboarding() {
-  if (_onboardPrevEl) _onboardPrevEl.classList.remove('onboard-highlight');
-  _onboardBackdrop?.remove();
-  _onboardTip?.remove();
-  chrome.storage.local.set({ onboardingDone: true });
-}
-
 // ─── Kick off ─────────────────────────────────────────────────────────────────
-async function main() {
-  await init();
-  chrome.storage.local.get('onboardingDone', ({ onboardingDone }) => {
-    if (!onboardingDone) startOnboarding();
-  });
-}
-
-main();
+init();

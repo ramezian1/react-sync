@@ -17,7 +17,6 @@
         <span class="logo-icon">⟳</span>
         <span class="logo-text">ReactSync</span>
       </div>
-      <button class="theme-toggle" id="themeToggle" title="Toggle theme">◑</button>
       <div class="status-dot" id="statusDot"></div>
     </header>
 
@@ -43,16 +42,6 @@
       <select class="tab-select" id="tabBSelect">
         <option value="">— select tab —</option>
       </select>
-    </div>
-
-    <!-- Audio Source (revealed after SYNC) -->
-    <div class="audio-row" id="audioRow" hidden>
-      <span class="audio-label">🔊 Audio</span>
-      <div class="audio-options">
-        <button class="audio-btn" data-audio="A">Tab A</button>
-        <button class="audio-btn" data-audio="B">Tab B</button>
-        <button class="audio-btn active" data-audio="both">Both</button>
-      </div>
     </div>
 
     <!-- Offset -->
@@ -98,16 +87,8 @@
       Select two tabs and hit SYNC
     </div>
 
-    <!-- Footer row -->
-    <div class="footer-row">
-      <button class="refresh-btn" id="refreshBtn">↻ refresh tabs</button>
-      <div class="footer-links">
-        <button class="shortcuts-btn" id="shortcutsBtn" title="Keyboard shortcuts">⌨ shortcuts</button>
-        <span class="footer-sep" id="donateSep">·</span>
-        <button class="donate-btn" id="donateBtn" title="Support development">♥ sponsor</button>
-        <button class="donate-dismiss" id="donateDismiss" title="Dismiss">×</button>
-      </div>
-    </div>
+    <!-- Refresh tabs -->
+    <button class="refresh-btn" id="refreshBtn">↻ refresh tabs</button>
 
   </div>
   <script src="popup.js"></script>

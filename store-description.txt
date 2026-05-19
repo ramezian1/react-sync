@@ -1,0 +1,26 @@
+ReactSync keeps a reaction video and its source video perfectly in sync across two browser tabs — automatically.
+
+Pick your reaction tab (Tab A) and your source tab (Tab B), enter the time offset between them, and hit Sync. From that point on, pressing play, pause, or seeking in either tab instantly mirrors the action in the other. No more manually pausing two videos every time you need a break.
+
+
+FEATURES
+
+• Automatic sync — play, pause, and seek events mirror across both tabs in real time
+• Time offset — set how many seconds Tab A leads Tab B (supports positive and negative values)
+• Nudge controls — fine-tune the offset in 0.5s, 1s, or 5s steps while watching
+• Keyboard shortcuts — Alt+Shift+Up / Down to nudge without opening the popup
+• Auto-detect offset — captures 10 seconds of audio from both tabs and uses cross-correlation to calculate the offset automatically (works on non-DRM content)
+• Audio source selector — hear Tab A only, Tab B only, or both
+• Survives tab reloads — sync resumes automatically once the video reloads
+• Persists across popup closes — your tabs and offset are restored when you reopen the popup
+• Dark and light mode
+
+
+COMPATIBILITY
+
+ReactSync works with any site that uses a standard HTML5 video element, including YouTube, Twitch, Vimeo, Patreon, and major streaming services. The auto-detect offset feature requires capturing audio and is unavailable on DRM-protected content.
+
+
+PRIVACY
+
+No data is collected, stored remotely, or transmitted to any server. All processing happens locally in your browser.

@@ -6,20 +6,6 @@
 let videoEl = null;
 let suppressEvents = false;
 let suppressTimeout = null;
-let syncActive = false;
-
-// Prevent focus-pause (Amazon Prime Video, etc.) while sync is active
-// by spoofing document.hidden / visibilityState in MAIN world.
-const _hiddenDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden');
-const _visDesc    = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-Object.defineProperty(document, 'hidden', {
-  get() { return syncActive ? false : _hiddenDesc.get.call(this); },
-  configurable: true
-});
-Object.defineProperty(document, 'visibilityState', {
-  get() { return syncActive ? 'visible' : _visDesc.get.call(this); },
-  configurable: true
-});
 
 function suppress(duration = 500) {
   suppressEvents = true;
@@ -65,22 +51,12 @@ function attachToVideo(video) {
       window.postMessage({ __rs: true, type: 'VIDEO_SEEK', currentTime: video.currentTime }, '*');
     }, 300);
   });
-
-  video.addEventListener('ended', () => {
-    if (suppressEvents) return;
-    window.postMessage({ __rs: true, type: 'VIDEO_ENDED' }, '*');
-  });
 }
 
 // Handle commands and time queries relayed from content.js
 window.addEventListener('message', (e) => {
   if (!e.data?.__rsCmd) return;
   const { type, reqId } = e.data;
-
-  if (type === 'CMD_SYNC_ACTIVE') {
-    syncActive = e.data.active;
-    return;
-  }
 
   if (type === 'PING') {
     window.postMessage({ __rs: true, type: 'PING_RESPONSE', reqId, hasVideo: !!findVideo() }, '*');
@@ -113,10 +89,6 @@ window.addEventListener('message', (e) => {
     videoEl.pause();
   } else if (type === 'CMD_SEEK') {
     videoEl.currentTime = Math.max(0, e.data.time);
-  } else if (type === 'CMD_MUTE') {
-    videoEl.muted = true;
-  } else if (type === 'CMD_UNMUTE') {
-    videoEl.muted = false;
   }
 });
 
@@ -124,26 +96,6 @@ window.addEventListener('message', (e) => {
 // Records durationSeconds of audio from the video, resamples to 4 kHz, and
 // posts back Int16 samples. Runs in MAIN world so captureStream() works on
 // sites that would block it from an isolated content script.
-
-// Worklet processor inlined as a Blob URL — page-inject runs in MAIN world
-// and has no access to chrome.runtime.getURL for a packaged worklet file.
-const _workletSrc = `
-class PCMCapture extends AudioWorkletProcessor {
-  constructor() {
-    super();
-    this._done = false;
-    this.port.onmessage = (e) => { if (e.data === 'stop') this._done = true; };
-  }
-  process(inputs) {
-    if (this._done) return false;
-    const ch = inputs[0]?.[0];
-    if (ch && ch.length) this.port.postMessage(ch.slice());
-    return true;
-  }
-}
-registerProcessor('rs-pcm-capture', PCMCapture);
-`;
-
 let isCapturing = false;
 
 async function captureAudioSamples(reqId, durationSeconds) {
@@ -164,6 +116,8 @@ async function captureAudioSamples(reqId, durationSeconds) {
       throw new Error('No audio track — content may be DRM-protected');
     }
 
+    // Use ScriptProcessorNode to capture raw PCM — more reliable than
+    // MediaRecorder which fails on many sites due to codec constraints.
     const audioCtx = new AudioContext();
     const source = audioCtx.createMediaStreamSource(stream);
     const targetRate = 4000;
@@ -171,28 +125,24 @@ async function captureAudioSamples(reqId, durationSeconds) {
     const targetSamples = durationSeconds * nativeRate;
     const collected = [];
 
-    const blobUrl = URL.createObjectURL(new Blob([_workletSrc], { type: 'application/javascript' }));
-    await audioCtx.audioWorklet.addModule(blobUrl);
-    URL.revokeObjectURL(blobUrl);
-
     await new Promise((resolve, reject) => {
-      const workletNode = new AudioWorkletNode(audioCtx, 'rs-pcm-capture');
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
 
-      // Silent gain so captured audio isn't doubled through speakers
+      // Route through a silent gain so audio isn't doubled through speakers
       const silent = audioCtx.createGain();
       silent.gain.value = 0;
-      source.connect(workletNode);
-      workletNode.connect(silent);
+      source.connect(processor);
+      processor.connect(silent);
       silent.connect(audioCtx.destination);
 
       let gotAudio = false;
-      workletNode.port.onmessage = (e) => {
-        const chunk = e.data;
+      processor.onaudioprocess = (e) => {
+        const chunk = e.inputBuffer.getChannelData(0);
         for (let i = 0; i < chunk.length; i++) collected.push(chunk[i]);
         if (!gotAudio && chunk.some(s => s !== 0)) gotAudio = true;
         if (collected.length >= targetSamples) {
-          workletNode.port.postMessage('stop');
-          workletNode.disconnect();
+          processor.onaudioprocess = null;
+          processor.disconnect();
           source.disconnect();
           audioCtx.close().then(resolve);
         }
@@ -201,8 +151,7 @@ async function captureAudioSamples(reqId, durationSeconds) {
       // If no audio signal after 3s, the stream is silent/DRM-blocked
       setTimeout(() => {
         if (!gotAudio) {
-          workletNode.port.postMessage('stop');
-          workletNode.disconnect();
+          processor.disconnect();
           source.disconnect();
           audioCtx.close();
           reject(new Error('No audio signal — video may be muted or DRM-protected'));
