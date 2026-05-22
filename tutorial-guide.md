@@ -51,17 +51,17 @@ Make sure both videos are loaded and visible before opening the popup.
 
 ---
 
-## Step 6: Set the Offset
+## Step 6: Set the Offset (OPTIONAL - Read Below)
 
 The offset = how many seconds Tab A (reaction) is **ahead** of Tab B (source).
 
-### Option A — Set it manually
+### Option A — Set it manually (REQUIRED FOR DRM CONTENT; Netflix, HBO Max, Paramount, etc.)
 - Pause both videos at the same moment in the content
 - Calculate the time difference (e.g. reaction is at 1:20, source is at 0:35 → offset is `45`)
 - Type that number into the **Offset** field
 - Use the **nudge buttons** (0.5s / 1s / 5s) to fine-tune
 
-### Option B — Auto-detect (YouTube, Vimeo, Patreon, Twitch only)
+### Option B — Auto-detect **(YouTube, Vimeo, Patreon, Twitch only)**
 - Make sure both videos are **playing**
 - Click **◎ auto-detect offset**
 - Wait ~10 seconds while it listens
