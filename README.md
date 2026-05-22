@@ -82,10 +82,10 @@ git clone https://github.com/ramezian1/react-sync.git
 1. Open Chrome and go to `chrome://extensions`
 2. Toggle on **Developer Mode** (top-right corner)
 3. Click **Load unpacked**
-4. Select the unzipped `react-sync` folder
+4. Select the `src/` folder inside the repo (e.g. `react-sync/src`)
 5. ReactSync will appear in your extensions list
 
-> Make sure you select the `react-sync` folder itself, not a subfolder inside it.
+> Make sure you select the `src/` folder, not the root `react-sync` folder and not a subfolder inside `src/`.
 
 ### Step 3 — Pin to Toolbar
 
@@ -98,7 +98,7 @@ git clone https://github.com/ramezian1/react-sync.git
 1. Clone or download the repo (see Step 1 above)
 2. Open Firefox and go to `about:debugging#/runtime/this-firefox`
 3. Click **Load Temporary Add-on**
-4. Navigate into the `react-sync` folder and select `manifest.json`
+4. Navigate into the `react-sync/src/` folder and select `manifest.json`
 
 > **Note:** Firefox temporary add-ons are removed when the browser closes. Permanent Firefox installation requires Mozilla signing.
 
@@ -108,14 +108,28 @@ git clone https://github.com/ramezian1/react-sync.git
 
 ```
 react-sync/
-├── manifest.json      # Extension config (Manifest V3)
-├── popup.html         # Popup UI
-├── popup.css          # Popup styles
-├── popup.js           # Popup logic
-├── background.js      # Service worker — manages sync state & message routing
-├── page-inject.js     # Injected into MAIN world — hooks video events & executes playback
-├── content.js         # Injected into isolated world — bridges page-inject.js ↔ background
-└── icons/             # Extension icons
+├── src/                   ← Extension source (load this folder in Chrome)
+│   ├── manifest.json      # Extension config (Manifest V3)
+│   ├── background.js      # Service worker — manages sync state & message routing
+│   ├── content.js         # Injected into isolated world — bridges page-inject.js ↔ background
+│   ├── page-inject.js     # Injected into MAIN world — hooks video events & executes playback
+│   ├── popup.html         # Popup UI
+│   ├── popup.css          # Popup styles
+│   ├── popup.js           # Popup logic
+│   └── icons/             # Extension icons (16px, 48px, 128px)
+├── docs/                  ← User-facing documentation
+│   ├── tutorial-guide.md  # Full setup & usage walkthrough
+│   └── shortcuts.html     # Keyboard shortcuts reference page
+├── store/                 ← Chrome Web Store submission assets
+│   ├── store-description.txt
+│   ├── store-promo.html
+│   ├── store-promo.png
+│   └── privacy-policy.html
+├── .github/               # GitHub Actions / Sponsors config
+├── google1d716e5b87e1b65f.html  # Google Search Console verification
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
 ---
