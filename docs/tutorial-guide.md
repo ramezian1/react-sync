@@ -40,10 +40,12 @@ git clone https://github.com/ramezian1/react-sync.git
 1. Open Chrome and navigate to `chrome://extensions` in the address bar
 2. Toggle **Developer Mode** on (top-right corner of the page)
 3. Click the **Load unpacked** button that appears
-4. In the file picker, navigate to and select the `react-sync` folder you unzipped in Step 1
+4. In the file picker, navigate into the `react-sync` folder and select the **`src`** subfolder
 5. ReactSync will appear in your extensions list with a green toggle
 
-> **Common mistake:** Make sure you select the `react-sync` folder itself — not a parent folder and not a subfolder inside it.
+> **Common mistakes:**
+> - Select the `src/` folder — not the parent `react-sync/` folder and not a subfolder inside `src/`
+> - Do not move or delete the `react-sync/src/` folder after loading — Chrome loads the extension live from that path
 
 ---
 
@@ -62,7 +64,7 @@ git clone https://github.com/ramezian1/react-sync.git
 1. Download or clone the repo (see Step 1 above)
 2. Open Firefox and go to `about:debugging#/runtime/this-firefox`
 3. Click **Load Temporary Add-on**
-4. Navigate into the `react-sync` folder and select `manifest.json`
+4. Navigate into the `react-sync/src/` folder and select `manifest.json`
 
 > **Important:** Firefox temporary add-ons are unloaded when the browser closes. You will need to reload the extension each time you restart Firefox until a signed version is available.
 
