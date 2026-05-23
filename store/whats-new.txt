@@ -1,0 +1,11 @@
+v1.4.0
+
+• Onboarding guide — a visual setup page now opens on first install, walking you through Tab A/B, the offset concept, and keyboard shortcuts so you can get synced without guessing.
+
+• Nudge buttons now sync instantly — clicking + or − in the popup while already synced immediately updates the background, matching the keyboard shortcut behaviour. No need to hit SYNC again.
+
+• Faster on heavy pages — the video detector is now debounced so it no longer runs on every DOM change. Noticeably lighter on sites like YouTube that mutate the page constantly.
+
+• Audio capture speed — the 10-second buffer for auto-detect is now pre-allocated, cutting out ~480,000 dynamic array operations per capture.
+
+• Broken favicon fix — tab icons that fail to load now hide cleanly instead of showing a broken-image placeholder.
