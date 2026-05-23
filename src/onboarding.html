@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to ReactSync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onboarding.css" />
+</head>
+<body>
+  <div class="page">
+
+    <header class="hero">
+      <div class="logo">
+        <span class="logo-icon">⟳</span>
+        <span class="logo-text">ReactSync</span>
+      </div>
+      <p class="tagline">Sync reaction videos with their source — frame-perfect, across any two tabs.</p>
+    </header>
+
+    <!-- Step 1 -->
+    <section class="card">
+      <div class="step-num">01</div>
+      <h2>Open both videos in separate tabs</h2>
+      <p>ReactSync works across any two tabs — YouTube, Twitch, Vimeo, local files, anything with a <code>&lt;video&gt;</code> element. Navigate each video to roughly the right position before syncing.</p>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="card">
+      <div class="step-num">02</div>
+      <h2>Select Tab A and Tab B</h2>
+      <div class="ab-diagram">
+        <div class="tab-chip a"><span class="chip-tag">A</span> Reaction video</div>
+        <div class="arrow">→</div>
+        <div class="tab-chip b"><span class="chip-tag">B</span> Source video</div>
+      </div>
+      <p><strong>Tab A</strong> is the reaction video (the one with the reactor's commentary). <strong>Tab B</strong> is the original source video being reacted to.</p>
+    </section>
+
+    <!-- Step 3 — core concept -->
+    <section class="card highlight">
+      <div class="step-num">03</div>
+      <h2>Set the offset</h2>
+      <p>The offset tells ReactSync <em>how many seconds Tab A is ahead of Tab B</em>.</p>
+
+      <div class="offset-diagram">
+        <div class="timeline">
+          <div class="tl-label">Tab B (source)</div>
+          <div class="tl-bar b-bar">
+            <span class="tl-tick" style="left:0">0s</span>
+            <span class="tl-tick" style="left:50%">30s</span>
+            <span class="tl-tick" style="left:100%">60s</span>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="tl-label">Tab A (reaction)</div>
+          <div class="tl-bar a-bar">
+            <span class="tl-tick" style="left:0">35s</span>
+            <span class="tl-tick" style="left:50%">65s</span>
+            <span class="tl-tick" style="left:100%">95s</span>
+          </div>
+        </div>
+        <div class="offset-callout">
+          offset = <span class="accent">+35s</span>
+          &nbsp;·&nbsp; Tab A starts 35 seconds into the source
+        </div>
+      </div>
+
+      <ul class="tips">
+        <li><strong>Positive offset</strong> — Tab A is further ahead (most common: the reactor skipped an intro).</li>
+        <li><strong>Negative offset</strong> — Tab B is ahead of Tab A.</li>
+        <li><strong>Zero</strong> — both videos started at the same moment.</li>
+      </ul>
+
+      <div class="autodetect-note">
+        <span class="badge">TIP</span>
+        Not sure what the offset is? Hit <strong>◎ auto-detect offset</strong> in the popup — ReactSync captures a few seconds of audio from each tab and calculates it automatically. Works on most sites (not DRM-protected streams like Netflix).
+      </div>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="card">
+      <div class="step-num">04</div>
+      <h2>Hit SYNC — then forget about it</h2>
+      <p>From this point on, play, pause, and seek in either tab and the other follows automatically. A drift check runs every 60 seconds in the background to keep things tight.</p>
+      <div class="shortcut-row">
+        <div class="shortcut">
+          <kbd>Alt</kbd><kbd>Shift</kbd><kbd>↑</kbd>
+          <span>Nudge offset +0.5s</span>
+        </div>
+        <div class="shortcut">
+          <kbd>Alt</kbd><kbd>Shift</kbd><kbd>↓</kbd>
+          <span>Nudge offset −0.5s</span>
+        </div>
+      </div>
+      <p class="muted">These keyboard shortcuts work globally — you don't need to open the popup.</p>
+    </section>
+
+    <div class="cta">
+      <button id="doneBtn" class="btn-done">Let's go ↗</button>
+    </div>
+
+  </div>
+  <script src="onboarding.js"></script>
+</body>
+</html>
