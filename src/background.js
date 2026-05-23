@@ -14,15 +14,20 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
-// Restore persisted state on service worker startup
-chrome.storage.session.get(['syncState', 'videoTabs'], (data) => {
-  if (data.syncState?.isSynced) {
-    syncState = data.syncState;
-    chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
-  }
-  if (data.videoTabs) {
-    videoTabs = data.videoTabs;
-  }
+// stateReady resolves once session storage has been restored.
+// All popup-facing handlers wait on this to avoid a race where the popup
+// sends GET_VIDEO_TABS / GET_SYNC_STATE before the restore callback fires.
+const stateReady = new Promise((resolve) => {
+  chrome.storage.session.get(['syncState', 'videoTabs'], (data) => {
+    if (data.syncState?.isSynced) {
+      syncState = data.syncState;
+      chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
+    }
+    if (data.videoTabs) {
+      videoTabs = data.videoTabs;
+    }
+    resolve();
+  });
 });
 
 function persistSyncState() {
@@ -57,17 +62,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Popup requests list of tabs with videos
     case 'GET_VIDEO_TABS':
-      // Also fetch current open tabs and merge
-      chrome.tabs.query({}, (tabs) => {
-        const enriched = tabs
-          .filter(t => videoTabs[t.id])
-          .map(t => ({
-            id: t.id,
-            title: t.title,
-            url: t.url,
-            favIconUrl: t.favIconUrl
-          }));
-        sendResponse({ tabs: enriched });
+      stateReady.then(() => {
+        chrome.tabs.query({}, (tabs) => {
+          const enriched = tabs
+            .filter(t => videoTabs[t.id])
+            .map(t => ({
+              id: t.id,
+              title: t.title,
+              url: t.url,
+              favIconUrl: t.favIconUrl
+            }));
+          sendResponse({ tabs: enriched });
+        });
       });
       return true; // keep channel open for async
 
@@ -99,7 +105,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Popup requests current sync state
     case 'GET_SYNC_STATE':
-      sendResponse({ ...syncState });
+      stateReady.then(() => sendResponse({ ...syncState }));
       return true;
 
     // Popup requests auto-detection of offset via audio cross-correlation
