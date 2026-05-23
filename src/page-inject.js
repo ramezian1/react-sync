@@ -140,8 +140,10 @@ async function captureAudioSamples(reqId, durationSeconds) {
     const source = audioCtx.createMediaStreamSource(stream);
     const targetRate = 4000;
     const nativeRate = audioCtx.sampleRate;
-    const targetSamples = durationSeconds * nativeRate;
-    const collected = [];
+    const targetSamples = Math.ceil(durationSeconds * nativeRate);
+    // Pre-allocate to avoid repeated resizing from push() on 480 K+ samples
+    const collected = new Float32Array(targetSamples);
+    let collectedCount = 0;
 
     const blobUrl = URL.createObjectURL(new Blob([_workletSrc], { type: 'application/javascript' }));
     await audioCtx.audioWorklet.addModule(blobUrl);
@@ -160,9 +162,11 @@ async function captureAudioSamples(reqId, durationSeconds) {
       let gotAudio = false;
       workletNode.port.onmessage = (e) => {
         const chunk = e.data;
-        for (let i = 0; i < chunk.length; i++) collected.push(chunk[i]);
+        const available = Math.min(chunk.length, targetSamples - collectedCount);
+        collected.set(chunk.subarray(0, available), collectedCount);
+        collectedCount += available;
         if (!gotAudio && chunk.some(s => s !== 0)) gotAudio = true;
-        if (collected.length >= targetSamples) {
+        if (collectedCount >= targetSamples) {
           workletNode.port.postMessage('stop');
           workletNode.disconnect();
           source.disconnect();
@@ -182,15 +186,15 @@ async function captureAudioSamples(reqId, durationSeconds) {
       }, 3000);
     });
 
-    // Downsample via decimation: pick every Nth sample
+    // Downsample via decimation and quantize to Int16 in one pass (~160 KB for 10 s)
     const ratio = nativeRate / targetRate;
-    const decimated = [];
-    for (let i = 0; i < Math.floor(Math.min(collected.length, targetSamples) / ratio); i++) {
-      decimated.push(collected[Math.floor(i * ratio)]);
+    const count = Math.min(collectedCount, targetSamples);
+    const decimLength = Math.floor(count / ratio);
+    const samples = new Array(decimLength);
+    for (let i = 0; i < decimLength; i++) {
+      const s = collected[Math.floor(i * ratio)];
+      samples[i] = Math.round(Math.max(-1, Math.min(1, s)) * 32767);
     }
-
-    // Quantize to Int16 for compact JSON transfer (~160 KB for 10 s)
-    const samples = decimated.map(s => Math.round(Math.max(-1, Math.min(1, s)) * 32767));
 
     window.postMessage({ __rs: true, type: 'AUDIO_CAPTURED', reqId, samples, sampleRate: targetRate }, '*');
   } catch (err) {
@@ -201,13 +205,20 @@ async function captureAudioSamples(reqId, durationSeconds) {
 }
 
 // Stay alive permanently — Netflix/Disney+ replace <video> elements on
-// loading screens, ads, and episode transitions
+// loading screens, ads, and episode transitions.
+// Debounced so findVideo() doesn't run on every individual DOM mutation
+// (heavy pages like YouTube can fire hundreds of mutations per second).
+let _mutationTimer = null;
 const rsObserver = new MutationObserver(() => {
-  const v = findVideo();
-  if (!v) return;
-  if (!videoEl || !document.contains(videoEl) || v !== videoEl) {
-    attachToVideo(v);
-  }
+  if (_mutationTimer) return;
+  _mutationTimer = setTimeout(() => {
+    _mutationTimer = null;
+    const v = findVideo();
+    if (!v) return;
+    if (!videoEl || !document.contains(videoEl) || v !== videoEl) {
+      attachToVideo(v);
+    }
+  }, 200);
 });
 
 rsObserver.observe(document.documentElement, { childList: true, subtree: true });
