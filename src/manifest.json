@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ReactSync",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Sync reaction videos with source videos across browser tabs. Set it once, forget it forever.",
   "permissions": ["tabs", "storage", "activeTab", "alarms"],
   "host_permissions": ["<all_urls>"],
