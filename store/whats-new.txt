@@ -1,11 +1,9 @@
-v1.4.0
+v1.5.0
 
-• Onboarding guide — a visual setup page now opens on first install, walking you through Tab A/B, the offset concept, and keyboard shortcuts so you can get synced without guessing.
+• Mark sync point — new ⊙ A and ⊙ B buttons in the popup. Seek each tab to the same moment (e.g. Tab A to where the movie starts in the reaction, Tab B to 0:00), click both marks, and the offset is calculated and applied instantly. Works on all sites including Netflix and Disney+.
 
-• Nudge buttons now sync instantly — clicking + or − in the popup while already synced immediately updates the background, matching the keyboard shortcut behaviour. No need to hit SYNC again.
+• Auto-detect offset fixed — was failing every time due to a browser audio policy issue. Now works correctly on YouTube, Patreon, Vimeo, Twitch, and other non-DRM sites. Both videos must be playing when you click auto-detect.
 
-• Faster on heavy pages — the video detector is now debounced so it no longer runs on every DOM change. Noticeably lighter on sites like YouTube that mutate the page constantly.
+• Nudge buttons now sync instantly — clicking + or − while synced updates the background immediately, matching the keyboard shortcut behaviour. No need to re-click SYNC.
 
-• Audio capture speed — the 10-second buffer for auto-detect is now pre-allocated, cutting out ~480,000 dynamic array operations per capture.
-
-• Broken favicon fix — tab icons that fail to load now hide cleanly instead of showing a broken-image placeholder.
+• Onboarding guide — a visual setup page now opens on first install explaining Tab A/B, the offset concept, and keyboard shortcuts.
