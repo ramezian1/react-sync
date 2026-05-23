@@ -11,12 +11,22 @@ This guide walks you through installing ReactSync and syncing your first pair of
 
 You need:
 - **Google Chrome** (latest version) or **Firefox 128+**
-- The ReactSync extension files (downloaded from this repo)
+- The ReactSync extension installed ([Chrome Web Store](https://chromewebstore.google.com/detail/reactsync/eniimhjciampimfbffelhmpcc) or sideloaded from this repo)
 - Two browser tabs — one with a reaction video, one with the source video
 
 ---
 
 ## Part 1: Installation
+
+### Option A — Chrome Web Store (Recommended)
+
+Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/reactsync/eniimhjciampimfbffelhmpcc) — no setup required.
+
+Then skip to [Part 2: Syncing Videos](#part-2-syncing-videos).
+
+---
+
+### Option B — Developer / Sideload Install
 
 ### Step 1 — Download ReactSync
 
@@ -99,30 +109,52 @@ Open two tabs in Chrome:
 
 The **offset** is how many seconds Tab A (the reaction) is ahead of Tab B (the source).
 
-**Example:** If the reaction video is at `1:20` and the source video is at `0:35`, the offset is `45` seconds.
+Reaction videos almost always have an intro before the movie starts, so the offset is typically the length of that intro. There are three ways to set it:
 
-#### Option A — Auto-Detect (YouTube, Vimeo, Patreon, Twitch, Crunchyroll only)
+---
+
+#### Option A — Mark Sync Point (Recommended)
+
+This is the easiest method and works on all sites including Netflix and Disney+.
+
+1. **Seek Tab A** (reaction) to the exact frame where the reactor starts watching the movie — the moment the movie appears on screen
+2. Click **⊙ A** in the popup — it captures Tab A's current timestamp (e.g. `2:35`)
+3. **Seek Tab B** (movie) to `0:00` — or the same matching scene if you prefer a mid-movie sync point
+4. Click **⊙ B** in the popup — it captures Tab B's current timestamp (e.g. `0:00`)
+5. The offset is calculated automatically (`2:35 - 0:00 = 155s`) — click **apply**
+6. ReactSync sets the offset and syncs both tabs instantly
+
+**Example — mid-movie sync point:**
+If you're already partway through and want to re-sync, find the same recognisable scene in both tabs (a character walking through a door, a scene change), pause each tab at that exact moment, and click ⊙ A and ⊙ B. The offset is the difference between the two timestamps.
+
+---
+
+#### Option B — Auto-Detect (YouTube, Vimeo, Patreon, Twitch, Crunchyroll)
+
+> Both videos must be **playing** when you click auto-detect. It will not work if either video is paused.
 
 1. Make sure **both videos are playing**
 2. Click the **◎ auto-detect offset** button
-3. Wait approximately **10 seconds** while ReactSync listens
+3. Wait approximately **10 seconds** while ReactSync captures audio from both tabs
 4. A detected value appears (e.g. `+3.25s`) — click **apply**
 
-> Auto-detect captures audio from both tabs to find the offset. It does **not** work on DRM-protected sites (Netflix, Disney+, HBO Max, etc.) because those services block audio capture at the browser level.
+> Auto-detect captures a short clip of audio from each tab and uses cross-correlation to find how far apart they are. It is best used for **fine-tuning** once you're already roughly aligned, not for finding a 2+ minute intro offset from scratch. It does **not** work on DRM-protected sites (Netflix, Disney+, HBO Max, etc.).
 
-#### Option B — Manual (Required for Netflix, Disney+, HBO Max, etc.)
+---
 
+#### Option C — Manual Entry
+
+Type the offset directly into the **Offset** field.
+
+**How to calculate it:**
 1. Pause both videos at the same visible moment in the content
-2. Note the current timestamp on each tab (e.g. Tab A = `1:20`, Tab B = `0:35`)
-3. Calculate the difference: `1:20 - 0:35 = 45 seconds`
-4. Enter `45` in the **Offset** field
-5. Use the **nudge buttons** (0.5s / 1s / 5s) to fine-tune if needed
-
-**Offset sign reference:**
+2. Note the timestamp of each (e.g. Tab A = `2:35`, Tab B = `0:00`)
+3. Subtract: `2:35 − 0:00 = 155 seconds`
+4. Enter `155` in the offset field
 
 | Situation | Offset |
 |-----------|--------|
-| Reaction video is ahead of source | Positive (e.g. `45`) |
+| Reaction video is ahead of source | Positive (e.g. `155`) |
 | Source video is ahead of reaction | Negative (e.g. `-20`) |
 | Both start at the same time | `0` |
 
@@ -140,13 +172,25 @@ From this point:
 
 ---
 
+### Fine-Tuning While Watching
+
+If the sync feels slightly off after starting:
+
+- Click **−** or **+** in the popup to nudge the offset by 0.5s, 1s, or 5s — the change takes effect immediately, no need to re-click SYNC
+- Use **`Alt + Shift + ↑`** / **`Alt + Shift + ↓`** on your keyboard to nudge without even opening the popup
+
+---
+
 ## Part 3: Tips & Troubleshooting
 
 | Situation | What to do |
 |-----------|------------|
-| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) while the video is playing |
+| Don't know the offset | Use **mark sync point** (⊙ A / ⊙ B) — seek each tab to the same moment |
+| Auto-detect shows "video is paused" | Both videos must be **playing** before clicking auto-detect |
+| Auto-detect shows "no audio signal" | Make sure the video is unmuted and not DRM-protected |
+| Netflix / Disney+ auto-detect not working | Expected — use mark sync point or enter the offset manually |
+| Sync feels slightly off | Click **−** / **+** nudge buttons while watching — they re-sync immediately |
 | Tab not showing in dropdown | The video must be fully loaded — click **↻ refresh tabs** |
-| Netflix / Disney+ auto-detect not working | This is expected — DRM blocks audio capture. Set the offset manually |
 | Videos slowly drift out of sync | ReactSync auto-corrects every 60 seconds. You can also nudge manually |
 | Want to stop syncing | Click **CLEAR** |
 | Switched to a new video | Click **CLEAR**, reload both tabs, then re-sync from Step 4 |

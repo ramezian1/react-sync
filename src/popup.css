@@ -398,6 +398,67 @@ body {
 
 .btn-dismiss:hover { color: var(--red); }
 
+/* ── Mark sync point ─────────────────────────────────────────── */
+.mark-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.mark-label {
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.mark-pair {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-mark {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-mark:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.mark-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  min-width: 36px;
+}
+
+.mark-result {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.mark-result-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
 /* ── Refresh Button ──────────────────────────────────────────── */
 .refresh-btn {
   background: transparent;

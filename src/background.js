@@ -69,6 +69,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ok: true });
       break;
 
+    // Popup requests current playback time from a specific tab (for mark sync point)
+    case 'GET_TAB_TIME':
+      tabMessage(message.tabId, { type: 'GET_VIDEO_TIME' }).then(res => {
+        sendResponse({ currentTime: res?.currentTime ?? null });
+      });
+      return true;
+
     // Popup requests current sync state
     case 'GET_SYNC_STATE':
       sendResponse({ ...syncState });
