@@ -170,13 +170,16 @@ async function captureAudioSamples(reqId, durationSeconds) {
       silent.connect(audioCtx.destination);
 
       let gotAudio = false;
+      let silenceTimer = null;
       workletNode.port.onmessage = (e) => {
-        const chunk = e.data;
+        // Worklet always sends Float32Array, but guard against unexpected types
+        const chunk = e.data instanceof Float32Array ? e.data : new Float32Array(e.data);
         const available = Math.min(chunk.length, targetSamples - collectedCount);
         collected.set(chunk.subarray(0, available), collectedCount);
         collectedCount += available;
         if (!gotAudio && chunk.some(s => s !== 0)) gotAudio = true;
         if (collectedCount >= targetSamples) {
+          clearTimeout(silenceTimer);
           workletNode.port.postMessage('stop');
           workletNode.disconnect();
           source.disconnect();
@@ -185,7 +188,7 @@ async function captureAudioSamples(reqId, durationSeconds) {
       };
 
       // If no audio signal after 3s, the stream is silent/DRM-blocked
-      setTimeout(() => {
+      silenceTimer = setTimeout(() => {
         if (!gotAudio) {
           workletNode.port.postMessage('stop');
           workletNode.disconnect();
