@@ -30,6 +30,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (senderTabId) {
         videoTabs[senderTabId] = {
           id: senderTabId,
+          frameId: sender.frameId ?? 0,  // track which frame holds the video
           title: message.title,
           url: message.url
         };
@@ -165,7 +166,8 @@ function calculateTargetTime(fromTabId, currentTime) {
 }
 
 function safeSend(tabId, message) {
-  chrome.tabs.sendMessage(tabId, message).catch(() => {
+  const frameId = videoTabs[tabId]?.frameId ?? 0;
+  chrome.tabs.sendMessage(tabId, message, { frameId }).catch(() => {
     // Tab may have been closed or navigated away — silently ignore
   });
 }
@@ -173,8 +175,9 @@ function safeSend(tabId, message) {
 // Callback-based wrapper so Promise.all works with the sendResponse pattern
 // used by content.js (which calls sendResponse asynchronously).
 function tabMessage(tabId, message) {
+  const frameId = videoTabs[tabId]?.frameId ?? 0;
   return new Promise((resolve) => {
-    chrome.tabs.sendMessage(tabId, message, (response) => {
+    chrome.tabs.sendMessage(tabId, message, { frameId }, (response) => {
       resolve(response || { error: chrome.runtime.lastError?.message || 'No response' });
     });
   });
