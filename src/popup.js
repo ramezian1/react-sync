@@ -19,6 +19,14 @@ const autoDetectResult = document.getElementById('autoDetectResult');
 const autoDetectValue  = document.getElementById('autoDetectValue');
 const applyDetectedBtn = document.getElementById('applyDetectedBtn');
 const dismissDetectedBtn = document.getElementById('dismissDetectedBtn');
+const markABtn         = document.getElementById('markABtn');
+const markBBtn         = document.getElementById('markBBtn');
+const markATime        = document.getElementById('markATime');
+const markBTime        = document.getElementById('markBTime');
+const markResult       = document.getElementById('markResult');
+const markResultValue  = document.getElementById('markResultValue');
+const applyMarkBtn     = document.getElementById('applyMarkBtn');
+const dismissMarkBtn   = document.getElementById('dismissMarkBtn');
 
 let nudgeSize = 0.5;
 let tabsCache = []; // kept so favicon lookups work after loadTabs()
@@ -247,6 +255,79 @@ dismissDetectedBtn.addEventListener('click', () => {
   hideDetectedResult();
   detectedOffset = null;
   setStatus('Dismissed — offset unchanged');
+});
+
+// ─── Mark sync point ──────────────────────────────────────────────────────────
+// Seek both tabs to the same moment, click Mark A + Mark B, get the offset.
+let markTimeA = null, markTimeB = null;
+
+function fmtTime(s) {
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = Math.floor(s % 60);
+  return h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+    : `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+function resetMark() {
+  markTimeA = markTimeB = null;
+  markATime.textContent = '';
+  markBTime.textContent = '';
+  markResult.hidden = true;
+}
+
+function tryShowMarkResult() {
+  if (markTimeA === null || markTimeB === null) return;
+  const offset = parseFloat((markTimeA - markTimeB).toFixed(2));
+  const sign = offset >= 0 ? '+' : '';
+  markResultValue.textContent = `${sign}${offset}s`;
+  markResult.hidden = false;
+  setStatus(`Sync point offset: ${sign}${offset}s — apply?`, 'warn');
+}
+
+markABtn.addEventListener('click', () => {
+  const tabId = parseInt(tabASelect.value);
+  if (!tabId) { setStatus('⚠ Select Tab A first', 'error'); return; }
+  chrome.runtime.sendMessage({ type: 'GET_TAB_TIME', tabId }, (res) => {
+    if (res?.currentTime == null) { setStatus('⚠ Could not read Tab A time', 'error'); return; }
+    markTimeA = res.currentTime;
+    markATime.textContent = fmtTime(markTimeA);
+    tryShowMarkResult();
+  });
+});
+
+markBBtn.addEventListener('click', () => {
+  const tabId = parseInt(tabBSelect.value);
+  if (!tabId) { setStatus('⚠ Select Tab B first', 'error'); return; }
+  chrome.runtime.sendMessage({ type: 'GET_TAB_TIME', tabId }, (res) => {
+    if (res?.currentTime == null) { setStatus('⚠ Could not read Tab B time', 'error'); return; }
+    markTimeB = res.currentTime;
+    markBTime.textContent = fmtTime(markTimeB);
+    tryShowMarkResult();
+  });
+});
+
+applyMarkBtn.addEventListener('click', () => {
+  if (markTimeA === null || markTimeB === null) return;
+  const offset = parseFloat((markTimeA - markTimeB).toFixed(2));
+  offsetInput.value = offset;
+  const tabA = parseInt(tabASelect.value);
+  const tabB = parseInt(tabBSelect.value);
+  if (!tabA || !tabB) { setStatus('⚠ Select both tabs first', 'error'); return; }
+  chrome.runtime.sendMessage({ type: 'SET_SYNC', tabA, tabB, offset }, (res) => {
+    if (res?.ok) {
+      saveOffset(offset);
+      setSynced(true);
+      setStatus(`✓ Synced — offset: ${offset}s (sync point)`, 'ok');
+    }
+  });
+  resetMark();
+});
+
+dismissMarkBtn.addEventListener('click', () => {
+  resetMark();
+  setStatus('Mark cleared');
 });
 
 // ─── Kick off ─────────────────────────────────────────────────────────────────
