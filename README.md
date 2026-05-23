@@ -9,10 +9,12 @@ ReactSync is a browser extension built for a common frustration: watching a reac
 ## Features
 
 - ✅ Auto-detects video tabs in your browser
-- ✅ Set a time offset between Tab A (reaction video) and Tab B (source video)
+- ✅ **Mark sync point** — seek each tab to the same moment, click ⊙ A + ⊙ B, offset calculated instantly
+- ✅ **Auto-detect offset** — captures 10s of audio from both tabs and calculates the offset automatically
+- ✅ Set a time offset manually between Tab A (reaction video) and Tab B (source video)
 - ✅ Play, pause, and seek events mirror across both tabs in real time
-- ✅ Fine-tune sync with nudge buttons (0.5s / 1s / 5s increments)
-- ✅ Sync state persists while tabs remain open
+- ✅ Fine-tune sync with nudge buttons (0.5s / 1s / 5s) — updates live without re-clicking SYNC
+- ✅ Drift correction runs every 60 seconds in the background
 - ✅ Works with YouTube, Patreon, Vimeo, Netflix, Disney+, and any HTML5 video
 - ✅ Zero data collected — fully local, nothing leaves your browser
 
@@ -36,7 +38,7 @@ ReactSync is a browser extension built for a common frustration: watching a reac
 | ![Paramount+](https://img.shields.io/badge/Paramount+-0064FF?style=flat&logo=paramountplus&logoColor=white) | ✅ | ❌ DRM |
 | ![Peacock](https://img.shields.io/badge/Peacock-000000?style=flat&logo=peacocktv&logoColor=white) | ✅ | ❌ DRM |
 
-> **Why no auto-detect on DRM sites?** Auto-detect works by listening to audio from the video. DRM-protected services (Netflix, Disney+, etc.) block audio capture at the browser level. Sync (play/pause/seek) still works — you just need to set the offset manually.
+> **Why no auto-detect on DRM sites?** Auto-detect works by listening to audio from the video. DRM-protected services (Netflix, Disney+, etc.) block audio capture at the browser level. Sync (play/pause/seek) still works — you just need to set the offset manually or use the mark sync point feature.
 
 ---
 
@@ -45,29 +47,53 @@ ReactSync is a browser extension built for a common frustration: watching a reac
 1. Open your **reaction video** in Tab A and the **source video** in Tab B
 2. Click the **ReactSync icon** in your toolbar
 3. Select **Tab A** and **Tab B** from the dropdowns
-4. Set the offset — e.g. `45` if the reaction video starts 45 seconds ahead of the source
+4. Set the offset using one of the three methods below
 5. Click **SYNC**
 6. Play either video — the other follows automatically
 
-### Understanding the Offset
+### Setting the Offset
 
-| Scenario | Offset Value |
-|----------|--------------|
-| Reaction video is ahead of the source | Positive number (e.g. `45`) |
-| Source video is ahead of the reaction | Negative number (e.g. `-20`) |
+**Method 1 — Mark sync point (recommended for reaction videos with intros)**
+
+Most reaction videos start with an intro before the movie begins. Use mark sync point to handle any intro length automatically:
+
+1. Seek Tab A (reaction) to the **exact frame where the movie starts**
+2. Click **⊙ A** in the popup
+3. Seek Tab B (movie) to **0:00** (or the matching frame)
+4. Click **⊙ B** in the popup
+5. The offset is calculated automatically — click **apply**
+
+**Method 2 — Auto-detect (YouTube, Vimeo, Patreon, Twitch — videos must be playing)**
+
+1. Make sure **both videos are playing**
+2. Click **◎ auto-detect offset**
+3. Wait ~10 seconds — click **apply** when the result appears
+
+> Does not work on DRM-protected sites (Netflix, Disney+, etc.)
+
+**Method 3 — Manual**
+
+Type the offset directly. The offset is how many seconds Tab A is ahead of Tab B.
+
+| Scenario | Offset |
+|----------|--------|
+| Reaction video is ahead of the source | Positive (e.g. `155`) |
+| Source video is ahead of the reaction | Negative (e.g. `-20`) |
 | Videos start at the same time | `0` |
 
-Use the **nudge buttons** (0.5s / 1s / 5s) to fine-tune the offset while watching.
+Use the **nudge buttons** (0.5s / 1s / 5s) to fine-tune while watching — they update sync instantly without re-clicking SYNC.
 
 ---
 
-## Installation (Developer / Sideload)
+## Installation
 
-> ReactSync is not yet on the Chrome Web Store. Follow the steps below to install it manually.
+ReactSync is available on the [Chrome Web Store](https://chromewebstore.google.com/detail/reactsync/eniimhjciampimfbffelhmpcc).
+
+### Developer / Sideload Install
 
 ### Step 1 — Download the Extension
 
-**Option A — No Git required (recommended for most users):**
+**Option A — No Git required:**
 1. Click the green **Code** button at the top of this page
 2. Select **Download ZIP**
 3. Unzip the downloaded file to a folder you can find easily (e.g. `Desktop/react-sync`)
@@ -139,8 +165,11 @@ react-sync/
 | Problem | Solution |
 |---------|----------|
 | Tab not showing in dropdown | The video tab must be fully loaded first — click **↻ refresh tabs** |
-| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) while the video is playing |
-| Netflix / Disney+ offset won't auto-detect | DRM blocks audio capture — set the offset manually |
+| Don't know the offset | Use **mark sync point** (⊙ A / ⊙ B) or **auto-detect** |
+| Auto-detect shows "video is paused" | Both videos must be **playing** before clicking auto-detect |
+| Auto-detect doesn't work | Only works on non-DRM sites. Use mark sync point instead |
+| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) — they re-sync immediately |
+| Netflix / Disney+ offset won't auto-detect | DRM blocks audio capture — use mark sync point or enter manually |
 | Videos get out of sync over time | Auto drift correction runs every 60 seconds — or nudge manually |
 | Want to stop syncing | Click **CLEAR** |
 | Switched to a new video | Click **CLEAR**, reload the tabs, then re-sync |
