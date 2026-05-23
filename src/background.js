@@ -12,6 +12,13 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
+// ─── Onboarding ───────────────────────────────────────────────────────────────
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') });
+  }
+});
+
 // ─── Message Router ───────────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const senderTabId = sender.tab?.id;
