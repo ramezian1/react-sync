@@ -2,6 +2,8 @@
 // Manages sync state and routes play/pause/seek messages between tabs
 
 // ─── Sync State ───────────────────────────────────────────────────────────────
+// MV3 service workers are terminated after ~30s of inactivity; syncState lives
+// in chrome.storage.session so it survives restarts within the same browser session.
 let syncState = {
   tabA: null,       // Reaction video tab ID
   tabB: null,       // Source video tab ID
@@ -11,6 +13,18 @@ let syncState = {
 
 // Tabs that have reported a video element
 let videoTabs = {};
+
+// Restore persisted sync state on service worker startup
+chrome.storage.session.get('syncState', (data) => {
+  if (data.syncState?.isSynced) {
+    syncState = data.syncState;
+    chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
+  }
+});
+
+function persistSyncState() {
+  chrome.storage.session.set({ syncState });
+}
 
 // ─── Onboarding ───────────────────────────────────────────────────────────────
 chrome.runtime.onInstalled.addListener((details) => {
@@ -60,6 +74,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       syncState.offset = parseFloat(message.offset) || 0;
       syncState.isSynced = true;
       chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
+      persistSyncState();
       sendResponse({ ok: true });
       break;
 
@@ -67,6 +82,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'CLEAR_SYNC':
       syncState = { tabA: null, tabB: null, offset: 0, isSynced: false };
       chrome.alarms.clear('driftCheck');
+      persistSyncState();
       sendResponse({ ok: true });
       break;
 
@@ -297,6 +313,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   if (!syncState.isSynced) return;
   const delta = command === 'nudge-up' ? 0.5 : -0.5;
   syncState.offset = parseFloat((syncState.offset + delta).toFixed(1));
+  persistSyncState();
 
   const resA = await tabMessage(syncState.tabA, { type: 'GET_VIDEO_TIME' });
   if (resA?.currentTime != null) {
@@ -330,5 +347,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
     chrome.alarms.clear('driftCheck');
+    persistSyncState();
   }
 });
