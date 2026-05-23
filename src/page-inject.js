@@ -53,6 +53,11 @@ function attachToVideo(video) {
   });
 }
 
+function clampTime(video, t) {
+  const max = isFinite(video.duration) ? video.duration : t;
+  return Math.max(0, Math.min(t, max));
+}
+
 // Handle commands and time queries relayed from content.js
 window.addEventListener('message', (e) => {
   if (!e.data?.__rsCmd) return;
@@ -83,12 +88,12 @@ window.addEventListener('message', (e) => {
   suppress();
 
   if (type === 'CMD_PLAY') {
-    if (e.data.seekTo !== undefined) videoEl.currentTime = e.data.seekTo;
+    if (e.data.seekTo !== undefined) videoEl.currentTime = clampTime(videoEl, e.data.seekTo);
     videoEl.play().catch(() => {});
   } else if (type === 'CMD_PAUSE') {
     videoEl.pause();
   } else if (type === 'CMD_SEEK') {
-    videoEl.currentTime = Math.max(0, e.data.time);
+    videoEl.currentTime = clampTime(videoEl, e.data.time);
   }
 });
 
