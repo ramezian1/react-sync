@@ -14,11 +14,14 @@ let syncState = {
 // Tabs that have reported a video element
 let videoTabs = {};
 
-// Restore persisted sync state on service worker startup
-chrome.storage.session.get('syncState', (data) => {
+// Restore persisted state on service worker startup
+chrome.storage.session.get(['syncState', 'videoTabs'], (data) => {
   if (data.syncState?.isSynced) {
     syncState = data.syncState;
     chrome.alarms.create('driftCheck', { periodInMinutes: 1 });
+  }
+  if (data.videoTabs) {
+    videoTabs = data.videoTabs;
   }
 });
 
@@ -48,6 +51,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           title: message.title,
           url: message.url
         };
+        chrome.storage.session.set({ videoTabs });
       }
       break;
 
@@ -344,6 +348,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 // ─── Cleanup closed tabs ──────────────────────────────────────────────────────
 chrome.tabs.onRemoved.addListener((tabId) => {
   delete videoTabs[tabId];
+  chrome.storage.session.set({ videoTabs });
   if (syncState.tabA === tabId || syncState.tabB === tabId) {
     syncState.isSynced = false;
     chrome.alarms.clear('driftCheck');
