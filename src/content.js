@@ -4,29 +4,39 @@
 
 // ── Page → Background ─────────────────────────────────────────────────────────
 // Forward video events and notifications from page-inject.js to background.
+
+// chrome.runtime.sendMessage throws synchronously when the extension is reloaded
+// and this content script is stale. Wrap every call so it never surfaces as an
+// uncaught error, and stop listening once the context is gone.
+let _contextValid = true;
+function rsSend(msg) {
+  if (!_contextValid) return;
+  try {
+    chrome.runtime.sendMessage(msg).catch(() => {});
+  } catch (e) {
+    _contextValid = false; // extension reloaded — this script is stale
+  }
+}
+
 window.addEventListener('message', (e) => {
   if (!e.data?.__rs) return;
   const { type, currentTime } = e.data;
 
   switch (type) {
     case 'VIDEO_FOUND':
-      chrome.runtime.sendMessage({
-        type: 'VIDEO_FOUND',
-        title: document.title,
-        url: window.location.href
-      }).catch(() => {});
+      rsSend({ type: 'VIDEO_FOUND', title: document.title, url: window.location.href });
       break;
 
     case 'VIDEO_PLAY':
-      chrome.runtime.sendMessage({ type: 'VIDEO_PLAY', currentTime }).catch(() => {});
+      rsSend({ type: 'VIDEO_PLAY', currentTime });
       break;
 
     case 'VIDEO_PAUSE':
-      chrome.runtime.sendMessage({ type: 'VIDEO_PAUSE', currentTime }).catch(() => {});
+      rsSend({ type: 'VIDEO_PAUSE', currentTime });
       break;
 
     case 'VIDEO_SEEK':
-      chrome.runtime.sendMessage({ type: 'VIDEO_SEEK', currentTime }).catch(() => {});
+      rsSend({ type: 'VIDEO_SEEK', currentTime });
       break;
   }
 });
@@ -103,11 +113,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // postMessage when it attaches to the new video element.
 function onNavigation() {
   setTimeout(() => {
-    chrome.runtime.sendMessage({
-      type: 'VIDEO_FOUND',
-      title: document.title,
-      url: window.location.href
-    }).catch(() => {});
+    rsSend({ type: 'VIDEO_FOUND', title: document.title, url: window.location.href });
   }, 500);
 }
 
