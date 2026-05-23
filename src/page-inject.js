@@ -131,12 +131,17 @@ async function captureAudioSamples(reqId, durationSeconds) {
 
   isCapturing = true;
   try {
+    if (videoEl.paused) {
+      throw new Error('Video is paused — press play on both tabs before auto-detecting');
+    }
     const stream = videoEl.captureStream();
     if (stream.getAudioTracks().length === 0) {
       throw new Error('No audio track — content may be DRM-protected');
     }
 
     const audioCtx = new AudioContext();
+    // Chrome suspends AudioContext when created outside a user gesture — resume it explicitly
+    await audioCtx.resume();
     const source = audioCtx.createMediaStreamSource(stream);
     const targetRate = 4000;
     const nativeRate = audioCtx.sampleRate;
