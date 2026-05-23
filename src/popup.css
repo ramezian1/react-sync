@@ -52,6 +52,7 @@ body {
   color: var(--accent);
   line-height: 1;
   animation: spin-idle 6s linear infinite;
+  will-change: transform;
 }
 
 @keyframes spin-idle {

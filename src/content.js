@@ -33,6 +33,8 @@ window.addEventListener('message', (e) => {
 
 // ── Background → Page ─────────────────────────────────────────────────────────
 // Relay commands and queries from background to page-inject.js via postMessage.
+let _reqCounter = 0;
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { type } = message;
 
@@ -42,7 +44,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (type === 'GET_VIDEO_TIME' || type === 'PING') {
-    const reqId = Math.random().toString(36).slice(2);
+    const reqId = `r${++_reqCounter}`;
     const responseType = type === 'PING' ? 'PING_RESPONSE' : 'VIDEO_TIME_RESPONSE';
 
     let timer;
@@ -69,7 +71,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (type === 'CAPTURE_AUDIO') {
-    const reqId = Math.random().toString(36).slice(2);
+    const reqId = `r${++_reqCounter}`;
     const duration = message.duration || 10;
 
     let timer;

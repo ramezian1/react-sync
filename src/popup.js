@@ -64,6 +64,7 @@ function populateSelect(select, tabs) {
 function updateFavicon(favImg, tabId) {
   const tab = tabsCache.find(t => String(t.id) === String(tabId));
   if (tab?.favIconUrl) {
+    favImg.onerror = () => { favImg.hidden = true; };
     favImg.src = tab.favIconUrl;
     favImg.hidden = false;
   } else {
@@ -148,13 +149,26 @@ clearBtn.addEventListener('click', () => {
 refreshBtn.addEventListener('click', loadTabs);
 
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
-nudgeUp.addEventListener('click', () => {
-  offsetInput.value = (parseFloat(offsetInput.value || 0) + nudgeSize).toFixed(1);
-});
+function applyNudge(delta) {
+  const newOffset = parseFloat((parseFloat(offsetInput.value || 0) + delta).toFixed(1));
+  offsetInput.value = newOffset;
+  // Mirror the keyboard shortcut behaviour: re-sync immediately if already active
+  if (statusDot.classList.contains('synced')) {
+    const tabA = parseInt(tabASelect.value);
+    const tabB = parseInt(tabBSelect.value);
+    if (tabA && tabB) {
+      chrome.runtime.sendMessage({ type: 'SET_SYNC', tabA, tabB, offset: newOffset }, (res) => {
+        if (res?.ok) {
+          saveOffset(newOffset);
+          setStatus(`✓ Synced — offset: ${newOffset}s`, 'ok');
+        }
+      });
+    }
+  }
+}
 
-nudgeDown.addEventListener('click', () => {
-  offsetInput.value = (parseFloat(offsetInput.value || 0) - nudgeSize).toFixed(1);
-});
+nudgeUp.addEventListener('click', () => applyNudge(nudgeSize));
+nudgeDown.addEventListener('click', () => applyNudge(-nudgeSize));
 
 nudgeSizeBtns.forEach(btn => {
   btn.addEventListener('click', () => {
