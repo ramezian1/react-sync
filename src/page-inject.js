@@ -85,6 +85,14 @@ window.addEventListener('message', (e) => {
   if (!videoEl || !document.contains(videoEl)) videoEl = findVideo();
   if (!videoEl) return;
 
+  if (type === 'CMD_MUTE') {
+    videoEl.muted = true;
+    return;
+  } else if (type === 'CMD_UNMUTE') {
+    videoEl.muted = false;
+    return;
+  }
+
   suppress();
 
   if (type === 'CMD_PLAY') {

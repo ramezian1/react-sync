@@ -27,9 +27,24 @@ const markResult       = document.getElementById('markResult');
 const markResultValue  = document.getElementById('markResultValue');
 const applyMarkBtn     = document.getElementById('applyMarkBtn');
 const dismissMarkBtn   = document.getElementById('dismissMarkBtn');
+const audioRow         = document.getElementById('audioRow');
+const audioBtns        = document.querySelectorAll('.audio-btn');
 
 let nudgeSize = 0.5;
 let tabsCache = []; // kept so favicon lookups work after loadTabs()
+
+// ─── Audio source ─────────────────────────────────────────────────────────────
+audioBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    audioBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chrome.runtime.sendMessage({ type: 'SET_AUDIO', audioSource: btn.dataset.audio });
+  });
+});
+
+function setAudioBtn(source) {
+  audioBtns.forEach(b => b.classList.toggle('active', b.dataset.audio === source));
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -94,6 +109,7 @@ async function restoreSyncState() {
         updateFavicon(tabAFav, state.tabA);
         updateFavicon(tabBFav, state.tabB);
         setSynced(true);
+        setAudioBtn(state.audioSource || 'both');
         setStatus(`✓ Synced — offset: ${state.offset}s`, 'ok');
       }
       resolve();
@@ -196,7 +212,11 @@ function setSynced(active) {
   statusDot.classList.toggle('synced', active);
   syncBtn.classList.toggle('active', active);
   autoDetectBtn.disabled = !active;
-  if (!active) hideDetectedResult();
+  audioRow.hidden = !active;
+  if (!active) {
+    hideDetectedResult();
+    setAudioBtn('both');
+  }
 }
 
 function truncate(str, len) {

@@ -48,7 +48,8 @@ let _reqCounter = 0;
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { type } = message;
 
-  if (type === 'CMD_PLAY' || type === 'CMD_PAUSE' || type === 'CMD_SEEK') {
+  if (type === 'CMD_PLAY' || type === 'CMD_PAUSE' || type === 'CMD_SEEK' ||
+      type === 'CMD_MUTE' || type === 'CMD_UNMUTE') {
     window.postMessage({ __rsCmd: true, ...message }, '*');
     return;
   }
