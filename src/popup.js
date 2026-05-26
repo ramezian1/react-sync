@@ -51,6 +51,7 @@ async function init() {
   await loadTabs();
   await restoreSyncState();
   await restoreOffset();
+  await restoreTabSelections();
 }
 
 // ─── Load tabs into dropdowns ─────────────────────────────────────────────────
@@ -95,8 +96,14 @@ function updateFavicon(favImg, tabId) {
   }
 }
 
-tabASelect.addEventListener('change', () => updateFavicon(tabAFav, tabASelect.value));
-tabBSelect.addEventListener('change', () => updateFavicon(tabBFav, tabBSelect.value));
+tabASelect.addEventListener('change', () => {
+  updateFavicon(tabAFav, tabASelect.value);
+  saveTabSelections();
+});
+tabBSelect.addEventListener('change', () => {
+  updateFavicon(tabBFav, tabBSelect.value);
+  saveTabSelections();
+});
 
 // ─── Restore saved sync state ─────────────────────────────────────────────────
 async function restoreSyncState() {
@@ -130,6 +137,35 @@ async function restoreOffset() {
     if (data.lastOffset !== undefined) {
       offsetInput.value = data.lastOffset;
     }
+  });
+}
+
+// ─── Persist Tab A / Tab B selections ─────────────────────────────────────────
+// Popups close on browser minimize / tab switch / clicking elsewhere. Save
+// picks to chrome.storage.local so they survive the popup being torn down.
+function saveTabSelections() {
+  chrome.storage.local.set({
+    lastTabA: tabASelect.value || null,
+    lastTabB: tabBSelect.value || null
+  });
+}
+
+async function restoreTabSelections() {
+  // restoreSyncState already populated these if a sync is active — don't clobber.
+  if (tabASelect.value && tabBSelect.value) return;
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['lastTabA', 'lastTabB'], (data) => {
+      const stillExists = (id) => id && tabsCache.some(t => String(t.id) === String(id));
+      if (!tabASelect.value && stillExists(data.lastTabA)) {
+        tabASelect.value = data.lastTabA;
+        updateFavicon(tabAFav, data.lastTabA);
+      }
+      if (!tabBSelect.value && stillExists(data.lastTabB)) {
+        tabBSelect.value = data.lastTabB;
+        updateFavicon(tabBFav, data.lastTabB);
+      }
+      resolve();
+    });
   });
 }
 

@@ -179,7 +179,19 @@ async function captureAudioSamples(reqId, durationSeconds) {
 
       let gotAudio = false;
       let silenceTimer = null;
+      let stallTimer = null;
+      let settled = false;
+
+      const teardown = () => {
+        clearTimeout(silenceTimer);
+        clearTimeout(stallTimer);
+        try { workletNode.port.postMessage('stop'); } catch {}
+        try { workletNode.disconnect(); } catch {}
+        try { source.disconnect(); } catch {}
+      };
+
       workletNode.port.onmessage = (e) => {
+        if (settled) return;
         // Worklet always sends Float32Array, but guard against unexpected types
         const chunk = e.data instanceof Float32Array ? e.data : new Float32Array(e.data);
         const available = Math.min(chunk.length, targetSamples - collectedCount);
@@ -187,24 +199,36 @@ async function captureAudioSamples(reqId, durationSeconds) {
         collectedCount += available;
         if (!gotAudio && chunk.some(s => s !== 0)) gotAudio = true;
         if (collectedCount >= targetSamples) {
-          clearTimeout(silenceTimer);
-          workletNode.port.postMessage('stop');
-          workletNode.disconnect();
-          source.disconnect();
+          settled = true;
+          teardown();
           audioCtx.close().then(resolve);
         }
       };
 
       // If no audio signal after 3s, the stream is silent/DRM-blocked
       silenceTimer = setTimeout(() => {
-        if (!gotAudio) {
-          workletNode.port.postMessage('stop');
-          workletNode.disconnect();
-          source.disconnect();
-          audioCtx.close();
-          reject(new Error('No audio signal — video may be muted or DRM-protected'));
-        }
+        if (settled || gotAudio) return;
+        settled = true;
+        teardown();
+        audioCtx.close();
+        reject(new Error('No audio signal — video may be muted or DRM-protected'));
       }, 3000);
+
+      // Hard stall guard: capture should complete in ~durationSeconds.
+      // If audio started flowing but then stopped (e.g. video paused mid-capture),
+      // resolve with what we have if it's enough to cross-correlate, else reject.
+      stallTimer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        teardown();
+        const minUsable = Math.floor(targetSamples * 0.4); // need ≥40% of window
+        if (gotAudio && collectedCount >= minUsable) {
+          audioCtx.close().then(resolve);
+        } else {
+          audioCtx.close();
+          reject(new Error('Capture stalled — keep both videos playing through the full 10s'));
+        }
+      }, (durationSeconds + 3) * 1000);
     });
 
     // Downsample via decimation and quantize to Int16 in one pass (~160 KB for 10 s)
