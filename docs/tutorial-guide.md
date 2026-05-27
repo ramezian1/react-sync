@@ -172,6 +172,20 @@ From this point:
 
 ---
 
+### Step 8 — Choose Audio Source (Optional)
+
+Once synced, an **🔊 Audio** row appears in the popup with three buttons: **Tab A**, **Tab B**, **Both**.
+
+| Button | Effect | When to use |
+|---|---|---|
+| **Tab A** | Mutes Tab B, only the reaction's audio plays | You want the reactor's commentary front and centre |
+| **Tab B** | Mutes Tab A, only the source's audio plays | You want clean movie audio without the reactor talking over it |
+| **Both** (default) | Both tabs play audio | Mixed listening — both reactor and source |
+
+You can switch between these at any time while watching — the change is instant. **CLEAR**ing sync resets this back to "Both".
+
+---
+
 ### Fine-Tuning While Watching
 
 If the sync feels slightly off after starting:
@@ -179,22 +193,93 @@ If the sync feels slightly off after starting:
 - Click **−** or **+** in the popup to nudge the offset by 0.5s, 1s, or 5s — the change takes effect immediately, no need to re-click SYNC
 - Use **`Alt + Shift + ↑`** / **`Alt + Shift + ↓`** on your keyboard to nudge without even opening the popup
 
+The nudge size buttons (`0.5s` / `1s` / `5s`) change how much each − / + click moves the offset. Use **5s** to catch up to a lag you've already noticed; use **0.5s** to dial in the final alignment.
+
 ---
 
-## Part 3: Tips & Troubleshooting
+## Part 3: Common Scenarios
+
+### Scenario 1 — YouTube reaction to a YouTube source
+
+The classic case. Both tabs support every feature.
+
+1. Open the reaction video and the source video in two tabs
+2. Pin ReactSync if you haven't already (see Step 3)
+3. Click the **⟳ ReactSync** icon → pick both tabs
+4. Use **Mark Sync Point** (recommended) or **Auto-detect** to find the offset
+5. Hit **SYNC** → done
+
+### Scenario 2 — YouTube reaction to a Netflix / Disney+ / Max source
+
+DRM-protected services block audio capture, so **auto-detect won't work** on the source tab. Sync (play/pause/seek) still works perfectly. Use **Mark Sync Point** or **Manual Entry** instead.
+
+1. Open the reaction (YouTube) and source (Netflix etc.) in two tabs
+2. In the popup, pick both tabs
+3. Seek both to the same recognisable scene (the moment the movie starts in the reaction → the movie's actual frame at that point)
+4. Click **⊙ A** in the reaction tab's popup, then **⊙ B** in the source's
+5. Click **apply** → ReactSync calculates the offset and syncs
+
+> Avoid leaving full-screen mode on Netflix mid-sync — Netflix sometimes pauses when it loses focus, which will trigger ReactSync to pause the other tab too. That's working as intended; just hit play again.
+
+### Scenario 3 — Patreon reaction to a local file or other source
+
+Patreon's video player is fully supported. If your source is a local file (`file://` URL), make sure you've enabled **Allow access to file URLs** for ReactSync in `chrome://extensions`.
+
+### Scenario 4 — Re-syncing mid-watch after a buffer or pause
+
+If the videos drift apart by more than a second, ReactSync's drift correction (every 60 seconds) usually catches it. If not:
+
+- Quick fix: use the **nudge** buttons or `Alt+Shift+↑/↓` keyboard shortcut
+- Bigger drift: pause both, find the same matching scene in each, click **⊙ A** + **⊙ B** + **apply** — this re-marks the sync point with the current positions
+
+### Scenario 5 — Switched to the next episode
+
+ReactSync tracks specific tabs, so:
+
+1. Click **CLEAR** in the popup
+2. Reload both tabs (`Ctrl+R` / `Cmd+R`)
+3. Start over from Step 4 with the new episode's offset
+
+---
+
+## Part 4: Understanding the Sync Methods
+
+| Method | Range | Accuracy | Works on DRM | Best for |
+|---|---|---|:---:|---|
+| **Mark Sync Point** | Any offset | Frame-accurate (depends on how precisely you seek) | ✅ | First-time sync, large intros, DRM sites |
+| **Auto-detect** | ±15 seconds | ~10 ms when locked on | ❌ | Fine-tuning after rough alignment |
+| **Manual Entry** | Any offset | As precise as you type | ✅ | You already know the number |
+
+### When auto-detect says "Couldn't lock on…"
+
+This means the audio cross-correlation didn't find a confident match between the two tabs. Common causes:
+
+- The two tabs are showing **different content** at that moment (e.g. the reactor is talking and the source is silent, or vice versa)
+- The two tabs are **more than 15 seconds apart** in content position — outside auto-detect's range
+- One or both tabs are at **low volume** or muted
+
+**Fix**: roughly align the two tabs first (use Mark Sync Point, or manually seek), then run auto-detect again to fine-tune.
+
+---
+
+## Part 5: Tips & Troubleshooting
 
 | Situation | What to do |
 |-----------|------------|
-| Don't know the offset | Use **mark sync point** (⊙ A / ⊙ B) — seek each tab to the same moment |
+| Don't know the offset | Use **Mark Sync Point** (⊙ A / ⊙ B) — seek each tab to the same moment |
 | Auto-detect shows "video is paused" | Both videos must be **playing** before clicking auto-detect |
 | Auto-detect shows "no audio signal" | Make sure the video is unmuted and not DRM-protected |
-| Netflix / Disney+ auto-detect not working | Expected — use mark sync point or enter the offset manually |
+| Auto-detect shows "Couldn't lock on…" | The audio doesn't match (too far apart, or one tab is silent). Use Mark Sync Point to roughly align, then retry |
+| Auto-detect shows "Capture stalled" | One of the videos paused mid-capture. Make sure both keep playing through the full 15 seconds |
+| Netflix / Disney+ auto-detect not working | Expected — DRM blocks audio capture. Use Mark Sync Point or enter the offset manually |
 | Sync feels slightly off | Click **−** / **+** nudge buttons while watching — they re-sync immediately |
-| Tab not showing in dropdown | The video must be fully loaded — click **↻ refresh tabs** |
+| Tab not showing in dropdown | The video must be fully loaded — click **↻ refresh tabs**. Also reload any tabs that were open before installing ReactSync |
 | Videos slowly drift out of sync | ReactSync auto-corrects every 60 seconds. You can also nudge manually |
+| Tab A / Tab B picks reset when popup closes | This is fixed in v1.5.1+. Update via Chrome's extensions menu |
 | Want to stop syncing | Click **CLEAR** |
 | Switched to a new video | Click **CLEAR**, reload both tabs, then re-sync from Step 4 |
 | Keyboard shortcut for nudging | `Alt + Shift + Up` / `Alt + Shift + Down` while watching |
+| Want to see this guide again | Visit this page on GitHub, or re-open the onboarding by reinstalling the extension |
 
 ---
 

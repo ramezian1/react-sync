@@ -19,6 +19,26 @@
       <p class="tagline">Sync reaction videos with their source — frame-perfect, across any two tabs.</p>
     </header>
 
+    <!-- Step 0 — Pin to toolbar -->
+    <section class="card pin-card">
+      <div class="pin-arrow" aria-hidden="true">
+        <span class="pin-arrow-shaft"></span>
+        <span class="pin-arrow-head">↑</span>
+        <span class="pin-arrow-label">find the ⟳ icon up here</span>
+      </div>
+      <div class="step-num">SETUP</div>
+      <h2>Pin ReactSync to your toolbar</h2>
+      <p>Click the <strong>🧩 puzzle piece</strong> icon at the top-right of Chrome → find <strong>ReactSync</strong> in the list → click the <strong>pin icon</strong> next to it. The <strong>⟳</strong> icon will then appear in your toolbar where you can click it whenever you want to sync two videos.</p>
+      <p class="muted">Already pinned? Skip to step 01 below.</p>
+    </section>
+
+    <!-- Quick CTA — try to open the popup directly. Requires Chrome 127+; falls
+         back to a friendly message if openPopup() isn't available. -->
+    <div class="quick-cta">
+      <button id="openPopupBtn" class="btn-open-popup">Open ReactSync now</button>
+      <span class="quick-cta-hint" id="quickCtaHint">Or click the ⟳ icon in your toolbar.</span>
+    </div>
+
     <!-- Step 1 -->
     <section class="card">
       <div class="step-num">01</div>
@@ -75,7 +95,7 @@
 
       <div class="autodetect-note">
         <span class="badge">TIP</span>
-        Not sure what the offset is? Hit <strong>◎ auto-detect offset</strong> in the popup — ReactSync captures a few seconds of audio from each tab and calculates it automatically. Works on most sites (not DRM-protected streams like Netflix).
+        <span class="autodetect-note-body">The easiest method is <strong>Mark Sync Point</strong> — seek both videos to the same scene, click <strong>⊙ A</strong> and <strong>⊙ B</strong>, and the offset is calculated for you. Works on every site including Netflix and Disney+. <strong>Auto-detect</strong> (◎ button) is the audio-based alternative — it captures 15 seconds of audio from each tab and is best for fine-tuning after you're roughly aligned.</span>
       </div>
     </section>
 
@@ -98,7 +118,8 @@
     </section>
 
     <div class="cta">
-      <button id="doneBtn" class="btn-done">Let's go ↗</button>
+      <button id="doneBtn" class="btn-done">Open ReactSync ↗</button>
+      <span class="cta-hint" id="ctaHint">Opens the popup if your browser supports it, otherwise click the ⟳ icon in your toolbar.</span>
     </div>
 
   </div>
