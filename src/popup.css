@@ -19,6 +19,10 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* HTML5 `hidden` attribute is overridden by any explicit `display:` rule
+   below — restore it so `el.hidden = true` actually hides elements. */
+[hidden] { display: none !important; }
+
 body {
   width: 340px;
   background: var(--bg);
