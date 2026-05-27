@@ -27,7 +27,9 @@ const markResult       = document.getElementById('markResult');
 const markResultValue  = document.getElementById('markResultValue');
 const applyMarkBtn     = document.getElementById('applyMarkBtn');
 const dismissMarkBtn   = document.getElementById('dismissMarkBtn');
-const audioRow         = document.getElementById('audioRow');
+const syncedControls   = document.getElementById('syncedControls');
+const offsetDisplay    = document.getElementById('offsetDisplay');
+const helpBtn          = document.getElementById('helpBtn');
 const audioBtns        = document.querySelectorAll('.audio-btn');
 
 let nudgeSize = 0.5;
@@ -208,10 +210,17 @@ clearBtn.addEventListener('click', () => {
 // ─── Refresh button ───────────────────────────────────────────────────────────
 refreshBtn.addEventListener('click', loadTabs);
 
+// ─── Help button ──────────────────────────────────────────────────────────────
+// Opens the onboarding page in a new tab — same content shown on first install.
+helpBtn.addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') });
+});
+
 // ─── Nudge buttons ────────────────────────────────────────────────────────────
 function applyNudge(delta) {
   const newOffset = parseFloat((parseFloat(offsetInput.value || 0) + delta).toFixed(1));
   offsetInput.value = newOffset;
+  updateOffsetDisplay();
   // Mirror the keyboard shortcut behaviour: re-sync immediately if already active
   if (statusDot.classList.contains('synced')) {
     const tabA = parseInt(tabASelect.value);
@@ -248,11 +257,18 @@ function setSynced(active) {
   statusDot.classList.toggle('synced', active);
   syncBtn.classList.toggle('active', active);
   autoDetectBtn.disabled = !active;
-  audioRow.hidden = !active;
+  syncedControls.hidden = !active;
+  if (active) updateOffsetDisplay();
   if (!active) {
     hideDetectedResult();
     setAudioBtn('both');
   }
+}
+
+function updateOffsetDisplay() {
+  const v = parseFloat(offsetInput.value || 0);
+  const sign = v >= 0 ? '+' : '';
+  offsetDisplay.textContent = `${sign}${v}s`;
 }
 
 function truncate(str, len) {

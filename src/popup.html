@@ -17,66 +17,104 @@
         <span class="logo-icon">⟳</span>
         <span class="logo-text">ReactSync</span>
       </div>
-      <div class="status-dot" id="statusDot"></div>
+      <div class="header-right">
+        <button class="help-btn" id="helpBtn" title="How it works">?</button>
+        <div class="status-dot" id="statusDot"></div>
+      </div>
     </header>
 
-    <!-- Tab A -->
-    <div class="tab-row">
-      <div class="tab-label reaction">
-        <span class="tag">A</span>
-        <span>Reaction Video</span>
+    <!-- Step 1: Pick tabs -->
+    <section class="step" id="step1">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <span class="step-title">Pick your two videos</span>
       </div>
-      <img class="tab-fav" id="tabAFav" src="" hidden />
-      <select class="tab-select" id="tabASelect">
-        <option value="">— select tab —</option>
-      </select>
-    </div>
-
-    <!-- Tab B -->
-    <div class="tab-row">
-      <div class="tab-label source">
-        <span class="tag">B</span>
-        <span>Source Video</span>
-      </div>
-      <img class="tab-fav" id="tabBFav" src="" hidden />
-      <select class="tab-select" id="tabBSelect">
-        <option value="">— select tab —</option>
-      </select>
-    </div>
-
-    <!-- Audio Source (revealed after SYNC) -->
-    <div class="audio-row" id="audioRow" hidden>
-      <span class="audio-label">🔊 Audio</span>
-      <div class="audio-options">
-        <button class="audio-btn" data-audio="A">Tab A</button>
-        <button class="audio-btn" data-audio="B">Tab B</button>
-        <button class="audio-btn active" data-audio="both">Both</button>
-      </div>
-    </div>
-
-    <!-- Offset -->
-    <div class="offset-section">
-      <div class="offset-label">
-        <span>Offset</span>
-        <span class="offset-hint">A is ahead by</span>
-      </div>
-      <div class="offset-controls">
-        <button class="nudge-btn" id="nudgeDown">−</button>
-        <div class="offset-input-wrap">
-          <input type="number" id="offsetInput" class="offset-input" value="0" step="0.5" min="-9999" max="9999" />
-          <span class="offset-unit">sec</span>
+      <div class="tab-row">
+        <div class="tab-label reaction">
+          <span class="tag">A</span>
+          <span>Reaction</span>
         </div>
-        <button class="nudge-btn" id="nudgeUp">+</button>
+        <img class="tab-fav" id="tabAFav" src="" hidden />
+        <select class="tab-select" id="tabASelect">
+          <option value="">— select tab —</option>
+        </select>
       </div>
-      <div class="nudge-size-row">
-        <span class="nudge-label">nudge:</span>
-        <button class="nudge-size-btn active" data-size="0.5">0.5s</button>
-        <button class="nudge-size-btn" data-size="1">1s</button>
-        <button class="nudge-size-btn" data-size="5">5s</button>
+      <div class="tab-row">
+        <div class="tab-label source">
+          <span class="tag">B</span>
+          <span>Source</span>
+        </div>
+        <img class="tab-fav" id="tabBFav" src="" hidden />
+        <select class="tab-select" id="tabBSelect">
+          <option value="">— select tab —</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Step 2: Mark sync point (primary flow) -->
+    <section class="step" id="step2">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <span class="step-title">Mark the same moment in both</span>
+      </div>
+      <p class="step-hint">Seek each video to the exact same scene (e.g. when the movie first appears in the reaction → matching frame in the source), then click both.</p>
+      <div class="mark-row">
+        <div class="mark-pair">
+          <button class="btn-mark" id="markABtn">⊙ Mark A</button>
+          <span class="mark-time" id="markATime"></span>
+        </div>
+        <div class="mark-pair">
+          <button class="btn-mark" id="markBBtn">⊙ Mark B</button>
+          <span class="mark-time" id="markBTime"></span>
+        </div>
+      </div>
+      <div class="mark-result" id="markResult" hidden>
+        <span class="mark-result-label">offset:</span>
+        <span class="mark-result-value" id="markResultValue"></span>
+        <button class="btn-apply" id="applyMarkBtn">Apply &amp; Sync</button>
+        <button class="btn-dismiss" id="dismissMarkBtn" title="Discard">✕</button>
+      </div>
+    </section>
+
+    <!-- Synced controls — visible only when sync is active -->
+    <section class="synced-controls" id="syncedControls" hidden>
+      <div class="synced-banner">
+        <span class="check">✓</span>
+        Synced — offset
+        <span class="offset-display" id="offsetDisplay">0s</span>
       </div>
 
-      <div class="autodetect-row">
-        <button class="btn-autodetect" id="autoDetectBtn" disabled>◎ auto-detect offset</button>
+      <div class="audio-row">
+        <span class="audio-label">🔊 Audio</span>
+        <div class="audio-options">
+          <button class="audio-btn" data-audio="A">A</button>
+          <button class="audio-btn" data-audio="B">B</button>
+          <button class="audio-btn active" data-audio="both">Both</button>
+        </div>
+      </div>
+
+      <div class="nudge-row">
+        <span class="nudge-prefix">Fine-tune:</span>
+        <button class="nudge-btn" id="nudgeDown">−</button>
+        <button class="nudge-btn" id="nudgeUp">+</button>
+        <div class="nudge-size-row">
+          <button class="nudge-size-btn active" data-size="0.5">0.5s</button>
+          <button class="nudge-size-btn" data-size="1">1s</button>
+          <button class="nudge-size-btn" data-size="5">5s</button>
+        </div>
+      </div>
+
+      <button class="btn-clear" id="clearBtn">Clear sync</button>
+    </section>
+
+    <!-- Advanced (collapsed by default) -->
+    <details class="advanced">
+      <summary>Advanced options</summary>
+
+      <div class="adv-block">
+        <div class="adv-label">Auto-detect from audio</div>
+        <p class="adv-hint">Refines the offset by ~±10s after you've roughly aligned. YouTube, Vimeo, Patreon, Twitch only — both videos must be playing.</p>
+        <button class="btn-autodetect" id="autoDetectBtn" disabled>◎ auto-detect</button>
         <div class="autodetect-result" id="autoDetectResult" hidden>
           <span class="autodetect-label">detected:</span>
           <span class="autodetect-value" id="autoDetectValue"></span>
@@ -85,33 +123,20 @@
         </div>
       </div>
 
-      <div class="mark-row">
-        <span class="mark-label">sync point:</span>
-        <div class="mark-pair">
-          <button class="btn-mark" id="markABtn">⊙ A</button>
-          <span class="mark-time" id="markATime"></span>
-        </div>
-        <div class="mark-pair">
-          <button class="btn-mark" id="markBBtn">⊙ B</button>
-          <span class="mark-time" id="markBTime"></span>
-        </div>
-        <div class="mark-result" id="markResult" hidden>
-          <span class="mark-result-value" id="markResultValue"></span>
-          <button class="btn-apply" id="applyMarkBtn">apply</button>
-          <button class="btn-dismiss" id="dismissMarkBtn">✕</button>
+      <div class="adv-block">
+        <div class="adv-label">Manual offset</div>
+        <p class="adv-hint">If you already know how many seconds Tab A is ahead of Tab B.</p>
+        <div class="manual-offset-row">
+          <input type="number" id="offsetInput" class="offset-input-inline" value="0" step="0.5" min="-9999" max="9999" />
+          <span class="offset-unit">sec</span>
+          <button class="btn-sync" id="syncBtn">SYNC</button>
         </div>
       </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="actions">
-      <button class="btn-sync" id="syncBtn">SYNC</button>
-      <button class="btn-clear" id="clearBtn">CLEAR</button>
-    </div>
+    </details>
 
     <!-- Status Bar -->
     <div class="status-bar" id="statusBar">
-      Select two tabs and hit SYNC
+      Pick both tabs, then mark a sync point.
     </div>
 
     <!-- Refresh tabs -->

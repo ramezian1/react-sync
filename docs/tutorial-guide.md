@@ -7,6 +7,21 @@ This guide walks you through installing ReactSync and syncing your first pair of
 
 ---
 
+## Quick Start (60 seconds)
+
+If you already have ReactSync installed, this is the whole flow:
+
+1. Open the **reaction video** in one tab and the **source video** in another.
+2. Click the **ReactSync icon** in your toolbar.
+3. Pick the reaction tab from the **A** dropdown and the source tab from the **B** dropdown.
+4. **Seek both videos to the same moment in the content** — e.g. the exact frame where the movie first appears in the reaction, and the same frame at the start of the source.
+5. Click **⊙ Mark A**, then **⊙ Mark B**.
+6. Click **Apply & Sync** — done. Play either video and the other follows.
+
+Need to adjust afterwards? Use the **−** / **+** buttons (or `Alt+Shift+↑` / `↓`) to nudge while watching. Everything else (auto-detect, manual offset entry) lives under **Advanced options** and is rarely needed.
+
+---
+
 ## Before You Start
 
 You need:
