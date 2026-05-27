@@ -124,7 +124,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ error: 'Not synced — set Tab A and Tab B first' });
         break;
       }
-      const duration = 10; // seconds of audio to capture per tab
+      const duration = 15; // seconds of audio to capture per tab
 
       Promise.all([
         tabMessage(syncState.tabA, { type: 'CAPTURE_AUDIO', duration }),
@@ -132,8 +132,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       ]).then(([resultA, resultB]) => {
         if (resultA?.error) return sendResponse({ error: `Tab A: ${resultA.error}` });
         if (resultB?.error) return sendResponse({ error: `Tab B: ${resultB.error}` });
-        const offset = findOffsetSeconds(resultA.samples, resultB.samples, resultA.sampleRate);
-        sendResponse({ offset });
+        const result = findOffsetSeconds(resultA.samples, resultB.samples, resultA.sampleRate);
+        if (!result.confident) {
+          sendResponse({ error: "Couldn't lock on — audio doesn't match between the two tabs. Try Mark Sync Point, or make sure both videos are playing the same content within ~15s of each other." });
+        } else {
+          sendResponse({ offset: result.offset });
+        }
       }).catch(err => sendResponse({ error: err.message }));
 
       return true; // keep channel open for async sendResponse
@@ -307,7 +311,10 @@ function normalizeSignal(samples) {
   return out;
 }
 
-// Returns detected offset in seconds (positive = A ahead of B).
+// Returns { offset, confidence, confident }.
+//   offset: detected lag in seconds (positive = A ahead of B)
+//   confidence: peak-to-background ratio
+//   confident: true if peak is significantly above background noise
 // Usable range: ±(min(lenA, lenB) / sampleRate) seconds.
 function findOffsetSeconds(samplesA, samplesB, sampleRate) {
   const a = normalizeSignal(samplesA);
@@ -344,7 +351,28 @@ function findOffsetSeconds(samplesA, samplesB, sampleRate) {
     if (v > best) { best = v; bestLag = lag; }
   }
 
-  return parseFloat((bestLag / sampleRate).toFixed(2));
+  // Confidence: peak-to-background ratio. Compute mean |reC| across the valid
+  // lag range, excluding a ±0.5s guard band around the peak so the peak itself
+  // doesn't bias the background level. A clean audio match has ratio >> 10;
+  // pure noise sits near 1–3. Threshold of 4 rejects garbage without being
+  // overly strict on noisy-but-real matches (e.g. reactor talking over source).
+  const guard = Math.floor(sampleRate * 0.5);
+  let sum = 0, count = 0;
+  for (let lag = -maxLag; lag <= maxLag; lag++) {
+    if (Math.abs(lag - bestLag) <= guard) continue;
+    const idx = lag >= 0 ? lag : n + lag;
+    sum += Math.abs(reC[idx]);
+    count++;
+  }
+  const background = count > 0 ? sum / count : 0;
+  const confidence = background > 0 ? best / background : Infinity;
+  const CONFIDENCE_THRESHOLD = 4;
+
+  return {
+    offset: parseFloat((bestLag / sampleRate).toFixed(2)),
+    confidence: parseFloat(confidence.toFixed(2)),
+    confident: confidence >= CONFIDENCE_THRESHOLD,
+  };
 }
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────────

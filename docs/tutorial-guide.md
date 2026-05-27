@@ -135,7 +135,7 @@ If you're already partway through and want to re-sync, find the same recognisabl
 
 1. Make sure **both videos are playing**
 2. Click the **◎ auto-detect offset** button
-3. Wait approximately **10 seconds** while ReactSync captures audio from both tabs
+3. Wait approximately **15 seconds** while ReactSync captures audio from both tabs
 4. A detected value appears (e.g. `+3.25s`) — click **apply**
 
 > Auto-detect captures a short clip of audio from each tab and uses cross-correlation to find how far apart they are. It is best used for **fine-tuning** once you're already roughly aligned, not for finding a 2+ minute intro offset from scratch. It does **not** work on DRM-protected sites (Netflix, Disney+, HBO Max, etc.).

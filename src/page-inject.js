@@ -226,7 +226,7 @@ async function captureAudioSamples(reqId, durationSeconds) {
           audioCtx.close().then(resolve);
         } else {
           audioCtx.close();
-          reject(new Error('Capture stalled — keep both videos playing through the full 10s'));
+          reject(new Error('Capture stalled — keep both videos playing through the full 15s'));
         }
       }, (durationSeconds + 3) * 1000);
     });

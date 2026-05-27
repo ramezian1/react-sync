@@ -270,7 +270,7 @@ let detectedOffset = null;
 autoDetectBtn.addEventListener('click', () => {
   hideDetectedResult();
   autoDetectBtn.disabled = true;
-  autoDetectBtn.textContent = '⏳ capturing 10s…';
+  autoDetectBtn.textContent = '⏳ capturing 15s…';
   setStatus('Capturing audio from both tabs…', 'warn');
 
   chrome.runtime.sendMessage({ type: 'DETECT_OFFSET' }, (res) => {
