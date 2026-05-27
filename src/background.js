@@ -365,7 +365,11 @@ function findOffsetSeconds(samplesA, samplesB, sampleRate) {
     count++;
   }
   const background = count > 0 ? sum / count : 0;
-  const confidence = background > 0 ? best / background : Infinity;
+  // best=0 AND background=0 means the cross-correlation was all zeros —
+  // typically because near-silent input snuck past page-inject's 3s
+  // gotAudio check (a single chirp followed by silence). Treat as no match,
+  // not as a perfect one.
+  const confidence = (best > 0 && background > 0) ? best / background : 0;
   const CONFIDENCE_THRESHOLD = 4;
 
   return {
