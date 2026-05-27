@@ -10,11 +10,13 @@ ReactSync is a browser extension built for a common frustration: watching a reac
 
 - ✅ Auto-detects video tabs in your browser
 - ✅ **Mark sync point** — seek each tab to the same moment, click ⊙ A + ⊙ B, offset calculated instantly
-- ✅ **Auto-detect offset** — captures 10s of audio from both tabs and calculates the offset automatically
+- ✅ **Auto-detect offset** — captures 15 s of audio from both tabs and calculates the offset automatically, with a confidence check that flags "couldn't lock on" instead of returning a garbage number
 - ✅ Set a time offset manually between Tab A (reaction video) and Tab B (source video)
 - ✅ Play, pause, and seek events mirror across both tabs in real time
-- ✅ Fine-tune sync with nudge buttons (0.5s / 1s / 5s) — updates live without re-clicking SYNC
+- ✅ **Audio source selector** — pick which tab plays audio (Tab A only, Tab B only, or both)
+- ✅ Fine-tune sync with nudge buttons (0.5s / 1s / 5s) or `Alt+Shift+↑` / `Alt+Shift+↓` keyboard shortcuts — updates live without re-clicking SYNC
 - ✅ Drift correction runs every 60 seconds in the background
+- ✅ Tab A / Tab B picks and offset persist across popup close, browser minimize, and service-worker restarts
 - ✅ Works with YouTube, Patreon, Vimeo, Netflix, Disney+, and any HTML5 video
 - ✅ Zero data collected — fully local, nothing leaves your browser
 
@@ -67,9 +69,9 @@ Most reaction videos start with an intro before the movie begins. Use mark sync 
 
 1. Make sure **both videos are playing**
 2. Click **◎ auto-detect offset**
-3. Wait ~10 seconds — click **apply** when the result appears
+3. Wait ~15 seconds — click **apply** when the result appears
 
-> Does not work on DRM-protected sites (Netflix, Disney+, etc.)
+> Detection range is ±15 s — best used to fine-tune after a rough Mark Sync Point alignment, not to find a 2-minute intro from scratch. If the cross-correlation can't lock on (different content, too far apart, or one tab silent), you'll see a clear "Couldn't lock on" message instead of a garbage offset. Does not work on DRM-protected sites (Netflix, Disney+, etc.).
 
 **Method 3 — Manual**
 
@@ -136,12 +138,15 @@ git clone https://github.com/ramezian1/react-sync.git
 react-sync/
 ├── src/                   ← Extension source (load this folder in Chrome)
 │   ├── manifest.json      # Extension config (Manifest V3)
-│   ├── background.js      # Service worker — manages sync state & message routing
+│   ├── background.js      # Service worker — manages sync state, message routing, and audio cross-correlation
 │   ├── content.js         # Injected into isolated world — bridges page-inject.js ↔ background
-│   ├── page-inject.js     # Injected into MAIN world — hooks video events & executes playback
+│   ├── page-inject.js     # Injected into MAIN world — hooks video events, executes playback, captures audio
 │   ├── popup.html         # Popup UI
 │   ├── popup.css          # Popup styles
 │   ├── popup.js           # Popup logic
+│   ├── onboarding.html    # First-install welcome / setup page
+│   ├── onboarding.css     # Onboarding styles
+│   ├── onboarding.js      # Onboarding logic (incl. one-click "Open ReactSync")
 │   └── icons/             # Extension icons (16px, 48px, 128px)
 ├── docs/                  ← User-facing documentation
 │   ├── tutorial-guide.md  # Full setup & usage walkthrough
@@ -150,7 +155,8 @@ react-sync/
 │   ├── store-description.txt
 │   ├── store-promo.html
 │   ├── store-promo.png
-│   └── privacy-policy.html
+│   ├── privacy-policy.html
+│   └── whats-new.txt      # Release notes for the listing's "What's new" copy
 ├── .github/               # GitHub Actions / Sponsors config
 ├── google1d716e5b87e1b65f.html  # Google Search Console verification
 ├── README.md
@@ -164,11 +170,13 @@ react-sync/
 
 | Problem | Solution |
 |---------|----------|
-| Tab not showing in dropdown | The video tab must be fully loaded first — click **↻ refresh tabs** |
+| Tab not showing in dropdown | The video tab must be fully loaded first — click **↻ refresh tabs**. Also reload any tabs that were open before installing ReactSync |
 | Don't know the offset | Use **mark sync point** (⊙ A / ⊙ B) or **auto-detect** |
 | Auto-detect shows "video is paused" | Both videos must be **playing** before clicking auto-detect |
+| Auto-detect shows "Couldn't lock on" | Audio doesn't match — get within ±15 s using mark sync point first, then retry to fine-tune |
+| Auto-detect shows "Capture stalled" | One of the videos paused mid-capture — keep both playing through the full 15 s |
 | Auto-detect doesn't work | Only works on non-DRM sites. Use mark sync point instead |
-| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) — they re-sync immediately |
+| Sync feels slightly off | Use the nudge buttons (0.5s / 1s / 5s) or `Alt+Shift+↑` / `Alt+Shift+↓` — they re-sync immediately |
 | Netflix / Disney+ offset won't auto-detect | DRM blocks audio capture — use mark sync point or enter manually |
 | Videos get out of sync over time | Auto drift correction runs every 60 seconds — or nudge manually |
 | Want to stop syncing | Click **CLEAR** |
