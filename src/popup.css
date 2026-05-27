@@ -32,10 +32,10 @@ body {
 }
 
 .app {
-  padding: 14px 16px 12px;
+  padding: 12px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
@@ -113,47 +113,22 @@ body {
   box-shadow: 0 0 6px var(--accent);
 }
 
-/* ── Steps ───────────────────────────────────────────────────── */
-.step {
+/* ── Sync point card ─────────────────────────────────────────── */
+.sync-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 9px 11px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
-.step-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #000;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 11px;
-  flex-shrink: 0;
-}
-
-.step-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.step-hint {
+.sync-card-title {
   font-size: 11px;
   color: var(--muted);
-  line-height: 1.4;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
 }
 
 /* ── Tab Rows ────────────────────────────────────────────────── */
@@ -219,17 +194,17 @@ body {
 .synced-controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   background: var(--surface);
   border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 8px 11px 9px;
   animation: audio-reveal 0.25s ease;
 }
 
 .synced-banner {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
@@ -238,12 +213,13 @@ body {
 }
 
 .synced-banner .check {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .offset-display {
   font-family: var(--font-mono);
   font-weight: 700;
+  font-size: 13px;
   color: var(--accent);
   margin-left: auto;
 }
@@ -251,7 +227,7 @@ body {
 .audio-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .audio-label {
@@ -288,21 +264,21 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
 }
 
 .nudge-prefix {
   font-size: 11px;
   color: var(--muted);
+  margin-right: 2px;
 }
 
 .nudge-btn {
-  width: 26px; height: 26px;
+  width: 24px; height: 24px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
   font-family: var(--font-mono);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -325,7 +301,7 @@ body {
 .nudge-size-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   margin-left: auto;
 }
 
@@ -569,18 +545,11 @@ body {
 .mark-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.mark-pair {
-  display: flex;
-  align-items: center;
   gap: 6px;
-  flex: 1;
 }
 
 .btn-mark {
+  flex: 1;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -588,11 +557,14 @@ body {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 10px;
+  padding: 6px 8px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
-  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .btn-mark:hover {
@@ -604,8 +576,9 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--accent);
-  min-width: 36px;
 }
+
+.mark-time:empty { display: none; }
 
 .mark-result {
   display: flex;
@@ -614,8 +587,7 @@ body {
   background: var(--bg);
   border: 1px solid var(--accent-dim);
   border-radius: var(--radius);
-  padding: 6px 8px;
-  flex-wrap: wrap;
+  padding: 5px 8px;
 }
 
 .mark-result-label {

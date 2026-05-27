@@ -24,52 +24,36 @@
     </header>
 
     <!-- Step 1: Pick tabs -->
-    <section class="step" id="step1">
-      <div class="step-head">
-        <span class="step-num">1</span>
-        <span class="step-title">Pick your two videos</span>
+    <div class="tab-row">
+      <div class="tab-label reaction">
+        <span class="tag">A</span>
+        <span>Reaction</span>
       </div>
-      <div class="tab-row">
-        <div class="tab-label reaction">
-          <span class="tag">A</span>
-          <span>Reaction</span>
-        </div>
-        <img class="tab-fav" id="tabAFav" src="" hidden />
-        <select class="tab-select" id="tabASelect">
-          <option value="">— select tab —</option>
-        </select>
+      <img class="tab-fav" id="tabAFav" src="" hidden />
+      <select class="tab-select" id="tabASelect">
+        <option value="">— select tab —</option>
+      </select>
+    </div>
+    <div class="tab-row">
+      <div class="tab-label source">
+        <span class="tag">B</span>
+        <span>Source</span>
       </div>
-      <div class="tab-row">
-        <div class="tab-label source">
-          <span class="tag">B</span>
-          <span>Source</span>
-        </div>
-        <img class="tab-fav" id="tabBFav" src="" hidden />
-        <select class="tab-select" id="tabBSelect">
-          <option value="">— select tab —</option>
-        </select>
-      </div>
-    </section>
+      <img class="tab-fav" id="tabBFav" src="" hidden />
+      <select class="tab-select" id="tabBSelect">
+        <option value="">— select tab —</option>
+      </select>
+    </div>
 
     <!-- Step 2: Mark sync point (primary flow) -->
-    <section class="step" id="step2">
-      <div class="step-head">
-        <span class="step-num">2</span>
-        <span class="step-title">Mark the same moment in both</span>
-      </div>
-      <p class="step-hint">Seek each video to the exact same scene (e.g. when the movie first appears in the reaction → matching frame in the source), then click both.</p>
+    <section class="sync-card" id="step2">
+      <div class="sync-card-title">Mark the same moment in both videos</div>
       <div class="mark-row">
-        <div class="mark-pair">
-          <button class="btn-mark" id="markABtn">⊙ Mark A</button>
-          <span class="mark-time" id="markATime"></span>
-        </div>
-        <div class="mark-pair">
-          <button class="btn-mark" id="markBBtn">⊙ Mark B</button>
-          <span class="mark-time" id="markBTime"></span>
-        </div>
+        <button class="btn-mark" id="markABtn">⊙ Mark A <span class="mark-time" id="markATime"></span></button>
+        <button class="btn-mark" id="markBBtn">⊙ Mark B <span class="mark-time" id="markBTime"></span></button>
       </div>
       <div class="mark-result" id="markResult" hidden>
-        <span class="mark-result-label">offset:</span>
+        <span class="mark-result-label">offset</span>
         <span class="mark-result-value" id="markResultValue"></span>
         <button class="btn-apply" id="applyMarkBtn">Apply &amp; Sync</button>
         <button class="btn-dismiss" id="dismissMarkBtn" title="Discard">✕</button>
