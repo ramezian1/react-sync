@@ -92,6 +92,87 @@ body {
   border-color: var(--accent-dim);
 }
 
+/* ── Pin-to-toolbar card with upward arrow ──────────────────── */
+.pin-card {
+  border-color: var(--accent-dim);
+  padding-top: 60px;
+}
+
+.pin-arrow {
+  position: absolute;
+  top: -30px;
+  right: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  color: var(--accent);
+  animation: bob 1.6s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.pin-arrow-head {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.pin-arrow-shaft {
+  width: 2px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.pin-arrow-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  white-space: nowrap;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Quick CTA (top, between pin card and step 1) ──────────── */
+.quick-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.btn-open-popup {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  padding: 11px 28px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-open-popup:hover  { background: #00ffb3; }
+.btn-open-popup:active { transform: scale(0.97); }
+
+.quick-cta-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+
 .step-num {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -301,8 +382,22 @@ kbd {
 /* ── CTA ────────────────────────────────────────────────────── */
 .cta {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   padding-top: 8px;
+}
+
+.cta-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  max-width: 480px;
+}
+
+.cta-hint-fallback {
+  color: var(--yellow);
 }
 
 .btn-done {
